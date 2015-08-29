@@ -1,0 +1,106 @@
+---
+title: 'Week 9: RD'
+author: "JJ Chen"
+date: "March 13, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    css: style.css
+    fig_caption: yes
+    fig_height: 3
+    fig_width: 4
+    includes:
+      in_header: macro.html
+    incremental: no
+    keep_md: no
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    smaller: no
+    transition: default
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+## Today's Plan
+
+1. A midterm exam question and related issues
+2. Recap: Shape and fuzz RD
+3. Some RD examples
+
+# Exam Question
+##  Exam Question
+
+- We are interested in the impact of school spending on student achievement
+    - Reg: $\mathrm{Scores}_{ics} = \alpha + \rho \mathrm{Spending}_{cs} + \rvX_{ics}'\vgamma + e_{ics}$
+    - $i$: student; $c$: school; $s$: states
+- We worry about the sorting of parents and children into schools, so we aggregate to state level
+    - Reg: $\overline{\mathrm{Scores}}_{s} = \alpha + \rho \overline{\mathrm{Spending}}_{s} + \bar{\rvX}_{s}'\vgamma + \bar{e}_{s}$
+- __Q: How to use "an IV framework" to think about it? What test would you provide? __
+
+## Grouped-data Version of IV
+
+- Aggregation as a grouped-data version of IV
+    - Each $\overline{\mathrm{Spending}}_{s}$ is a conditional mean defined by a state dummy, say $\mathrm{IL}_i$
+    - Just like in Visual-IV, each dots is defined by a draft number dummy
+    - Fitting an OLS model is like running a 2SLS procedure
+- The instruments are a full set of mutually exclusive dummy variables: States
+    - So the grouped-data estimator (GLS) is a linear combination of all state-specific Wald estimators
+    
+## A Few More Grouped-Data Examples
+
+- @Angrist1991: To deal with measurement error in measures of hours worked 
+    - In fact, this is related to the original Wald estimator, where grouped-data is defined by a categorical variable that is correlated with the true regressor but independent of measurement error
+- @RivkinHanushekKain2005: Aggregate to grade level to overcome sorting at classroom level
+- Many peer effects models, see @Angrist2014
+    - For examples, $\rS_{ij} = \alpha + \rho \bar{\rS}_j + e_{ij}$
+    - What're the instruments? What's the first stage?
+    - This is a bad regression, don't run it
+
+## Over-id Tests
+- Once we become more familiar with the link between grouped-data and IVs, the logic of over-id test should be natural
+    - Just back to Visual-IV
+- Given the precision of group means, how well does the line fits the data points (which are about the same as many just-identified estimates)
+- So, the question asks for a Chi-sq test. But many of you jump to the endogeneity test.
+
+# Sharp RD and Fuzzy RD
+## Some Questions
+- The RD idea is so simple that I think reviewing basic things like ID assumption, tests for RD assumptions, and RD regressions is kind of dull. So let's do questions:
+    1. What's the ID assumption?
+    2. What're the implications of the ID assumption? (Or how would you test the ID assumption?)
+    3. The relationship between the outcome variable and the running variable can be nonlinear. So would you consider using a high-order polynomials regression? (@GelmanImbens2014)
+    
+## More Questions
+4. The treatment dummy is determined by the running variable, so should we worry about perfectly collinearity?
+5. What's the trade-off of using non-parametric RD (narrowing the window around the cutoff)?
+6. By definition, there should be no OVB for the treatment $\rD_i$. That is, once we conditional on the running variable $\rX_i$, there is no variation left for the treatment. How can there be any OVB that's correlated with $\tilde{\rD}_i$, where $\tilde{\rD}_i$ is the residual of running a regression of $\rD_i$ on $\rX_i$? What's the catch? (There're at least two...)
+    
+## More Questions
+7. How bad is manipulation/heaping around the cutoff?
+8. How does RD differ from matching?
+9. In one sentence, how would you distinguish shape RD and fuzzy RD?
+
+
+# RD Examples
+## Some RD People Used 
+- Let's think about which one of these cutoffs is easily manipulated
+    1. The second Sunday in March
+    2. Age: 21, 65
+    3. 1500 grams
+    4. School district border
+    5. GPA: 2.0, 3.5, 3.666, 3.75
+    6. IQ: 137, 113
+
+## References {.allowframebreaks}

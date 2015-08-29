@@ -1,0 +1,366 @@
+---
+title: 'Week 12: DID'
+author: "JJ Chen"
+date: "April 3, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    css: style.css
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    includes:
+      in_header: macro.html
+    incremental: no
+    keep_md: no
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    smaller: no
+    transition: default
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, 
+                      comment=NA,
+                      warning=FALSE,
+                      message=FALSE)
+library(png)
+library(grid)
+```
+
+## Today's Plan
+- Basic DID recap
+- An DID example: @nunn2011potato
+- Other DID extensions
+    
+# Basic DID Recap
+## Potential Outcome DID
+- Two groups of units: $\rvar{TREAT}_i = 0$, $\rvar{TREAT}_i = 1$
+- Two periods: $\rvar{POST}_t = 0 = before$, $\rvar{POST}_t = 1 = after$
+- Treatment group receives treatment in post period: $\rvar{TP}_{it} = \rvar{TREAT}_i \times \rvar{POST}_t$
+- Two potential outcomes: $\rY_{0it}$, $\rY_{1it}$
+    - Observed outcomes: $\rY_{it} = \rY_{0it} \times (1 - \rvar{TP}_{it}) + \rY_{1it} \times \rvar{TP}_{it}$
+- ATET: $\delta^{ATET} = \E( \rY_{1it} - \rY_{0it} \mid \rvar{TP}_{it} = 1 )$
+    - $\implies \delta^{ATET} = \E( \rY_{1i,after} - \rY_{0i,after} \mid \rvar{TREAT} = 1)$. Why? So what?
+    - $\implies \delta^{ATET} = \E( \rY_{1a} - \rY_{0a} \mid \rvar{T} = 1)$ 
+    
+## Potential Outcome DID
+- ATET: $\delta^{ATET} = \E( \rY_{1a} - \rY_{0a} \mid \rvar{T} = 1)$
+- DID gives ATET?
+$$
+\begin{split}
+\delta^{DID} =& \E(\rY_a - \rY_b \mid \rT = 1) - \E(\rY_a - \rY_b \mid \rT = 0) \\
+   =& \E(\rY_{1a} - \clrg{\rY_{0b}} \mid \rT = 1) - \E(\rY_{0a} - \rY_{0b} \mid \rT = 0) \\
+ =& \E(\rY_{1a} - \rY_{0b} \mid \rT = 1) - \clrg{ \E(\rY_{0a} - \rY_{0b} \mid \rT = 1) } \\
+ =&    \E( \rY_{1a} - \rY_{0a} \mid \rvar{T} = 1) \\
+                   =& \delta^{ATET}
+\end{split}
+$$
+- ID assumption for ATET: $\clrg{ \E(\rY_{0a} - \rY_{0b} \mid \rT = 1) = \E(\rY_{0a} - \rY_{0b} \mid \rT = 0) }$
+    - Or: $\rY_{0a} - \rY_{0b} \indep \rT$
+    - Can be extended to selection-on-observable: $\rY_{0a} - \rY_{0b} \indep \rT \mid \rvX$
+
+## Regressions DID
+- Simple: $\rY_{it} = \alpha + \beta \rvar{TREAT}_i + \gamma \rvar{POST}_t + \delta \rvar{TP}_{it} + e_{it}$
+- Multiple groups and periods: $\rY_{it} = \alpha + \sum\limits_{k=1}^K \beta_k \rvar{TREAT}_{ki} + \sum\limits_{j=1}^J \gamma_j \rvar{PERIOD}_{jt} + \delta \rvar{TP}_{it} + e_{it}$
+    - Or: $\rY_{it} = \alpha + \beta_i + \gamma_t + \delta \rvar{TP}_{it} + e_{it}$
+- Allow group specific trends: $\rY_{it} = \alpha + \sum\limits_{k=1}^K \beta_k \rvar{TREAT}_{ki} + \sum\limits_{j=1}^J \gamma_j \rvar{PERIOD}_{jt} + \sum\limits_{k=1}^K \theta_k (\rvar{TREAT}_{ki} \times t) +
+\delta \rvar{TP}_{it} + e_{it}$
+
+# Example Paper Discussion: @nunn2011potato
+## Introduction
+- @nunn2011potato examine the impact of potato on Old World population and urbanization
+- Source of identification:
+    - regional variation in suitability for planting potatoes
+    - time variation in introduction of potato from Americans
+    - a typical DID research design
+- What're the differences here?
+
+## Empirical Implications
+- $\rY_{it} = \beta (\ln \rvar{Potato Area}_i \times \rI^{Post}_t) + \sum\limits_{j=1100}^{1900} \rvX'_i \rvI_{jt} \vphi_j + \sum\limits_c\gamma_c\rI_{ci} + \sum\limits_{j=1100}^{1900}\rho_j\rI_{jt} + e_{it}$
+    - Time periods include 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1750, 1800, 1850, and 1900
+    - There are countries fixed effects and time fixed effects
+    - Post periods are 1750, 1800, 1850, and 1900
+- $\rY_{it} = \sum\limits_{j=1100}^{1900}\beta_j (\ln \rvar{Potato Area}_i \times \rI^{Post}_{jt}) + \sum\limits_{j=1100}^{1900} \rvX'_i \rvI_{jt} \vphi_j + \sum\limits_c\gamma_c\rI_{ci} + \sum\limits_{j=1100}^{1900}\rho_j\rI_{jt} + e_{it}$
+    
+## Outcome Variable {.flexbox .vcenter}
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w12/fig1.png"))
+```
+
+
+## Variations in Suitatble Potato Area: Map {.flexbox .vcenter}
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w12/map.png"))
+```
+
+## Flexible Estimation Result: Table 2 {.flexbox .vcenter}
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w12/tab2.png"))
+```
+
+## Flexible Estimation Result: Figure IVa {.flexbox .vcenter}
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w12/fig4a.png"))
+```
+
+
+
+# A Quick Intro to Mapmaking 
+## Reasons
+- Many empirical economics papers, especially those involve a DID type of research design, have maps that illustrate spatial variations in variables of interest. 
+- Let's look at three R packages:`maps`, `ggmap` and `leaflet`
+    - `maps` and `ggmap` are useful for creating static maps
+    - `leaflet` is good for dynamic maps (See another html file for examples)
+    - Often times static maps would be enough for us
+- Ultimately, our job is to explain variations, but knowing a little map-making could be beneficial maybe
+- There are many other software for making maps. I also suggest QGIS.
+
+## `maps`: Calling Base Maps {.allowframebreaks}
+```{r,fig.align='center'}
+# install.packages("maps")
+library(maps)
+map("world")
+```
+
+## `maps`: Calling Base Maps {.allowframebreaks}
+```{r,fig.align='center'}
+map("usa")
+```
+
+## `maps`: Calling Base Maps {.allowframebreaks}
+```{r,fig.align='center'}
+map("state")
+```
+
+## `maps`: Calling Base Maps {.allowframebreaks}
+```{r,fig.align='center'}
+map("county")
+```
+
+## `maps`: Calling Base Maps {.allowframebreaks}
+```{r,fig.align='center'}
+map("county", "illinois")
+```
+
+## `maps`: Dot Distribution Map {.allowframebreaks}
+```{r,fig.align='center'}
+map("usa")
+# Add two silly points; point 1: long = -100, lat = 34
+points(x = c(-100, -101), y = c(34, 35))
+```
+
+## `maps`: Choropleth Map {.allowframebreaks}
+```{r,fig.align='center'}
+data(unemp)
+data(county.fips)
+colors = c("#F1EEF6", "#D4B9DA", "#C994C7", 
+           "#DF65B0", "#DD1C77", "#980043")
+unemp$colorBuckets <- 
+    as.numeric(cut(unemp$unemp, 
+                   c(0, 2, 4, 6, 8, 10, 100)))
+cnty.fips <- county.fips$fips[
+          match(map("county", plot=FALSE)$names,
+          county.fips$polyname)]
+colorsmatched <- 
+    unemp$colorBuckets[match(cnty.fips, unemp$fips)]
+map("county", col = colors[colorsmatched], fill = TRUE)
+```
+
+## `ggmap`: Base Map {.allowframebreaks}
+```{r,fig.align='center'}
+# install.packages("ggmap")
+library(ggmap)
+qmap("united states", zoom = 4)
+```
+
+## `ggmap`: Base Map {.allowframebreaks}
+```{r,fig.align="center"}
+qmap("bridgeport, Chicago", zoom = 15, maptype = "hybrid")
+```
+
+## `ggmap`: Dot Distribution Map {.allowframebreaks}
+```{r,fig.align='center'}
+# generate some points with random longitude and latitude and plot them
+points = data.frame(lon = rnorm(100, mean = -100, sd = 2),
+                    lat = rnorm(100, mean = 40, sd = 2))
+qmap("united states", zoom = 4) + 
+    geom_point(data = points)
+```
+
+## `ggmap`: Choropleth Maps {.allowframebreaks}
+```{r,fig.align='center'}
+county <- fortify(map_data("county"))
+number.of.county <- max(county$group)
+measure <- data.frame(group = 1:number.of.county, 
+                      measure = runif(number.of.county))
+county <- merge(county, measure, by = "group")
+qmap("united states", zoom = 3) + 
+    geom_polygon(data = county, 
+    aes(x= long, y = lat, group = group, fill = measure))
+```
+
+# DID Extensions
+## DID Extensions
+- Wald-DID: combining DID with IV
+    - In LATE framework, both RF and 1st estimates should be unbiased (required by the independent assumption), thus DID can be used to construct unbiased RF and 1st estimates
+    - Require two common trend assumptions
+    - Next week we will cover a paper by Duflo that illustrates this type of design
+- Back-door DID: DID is not limited by panel data
+    - The time dimension can be replaced by other covariate that refine the comparison group
+    - Also another DDD paper next week
+- Front-door DID: It's possible to even use post-treatment variable to define groups
+
+## Wald-DID Example: @bleakley2004language
+- Why Language Skill?
+    - Arguably one big difference between immigrants and natives
+    - Important for understanding assimilation, earning gap
+- Empirical Challenge
+    - Language skill is endogenous
+    - Immigrants who speak good English might also that other better skills that affect earnings
+    - Much like ability bias
+- Language skill is hard to measure
+    - Simple regression strategy might lead to upward bias and attenuation bias
+
+
+## Identification Strategy: Instrumental Variable 
+- Immigrants' __age at arrival__ provides possibly exogenous variation of language skills
+1. Is there a first stage?
+    - Kids pick up language easier than teenage and adults
+2. Is age-at-arrival as good as randomly assigned?
+    - Probably not. Parents' plan, expectations, resources.
+3. Is age-at-arrival satisfied exclusion restriction?
+    - Probably not. Lots of things can happen for a few more years in U.S.
+
+## Identification Strategy: Extra Controls for Nonlanguage Effects 
+- Bring in another control group: immigrants from English-speaking countries
+    - Control for secular age-at-arrival effect
+- Simple illustration:
+
+Immigrants COO     Age-at-arrival Earning (age 30)
+---------- ------- -------------- ----------------
+Jamarco    Jamaica 5              12
+Javina     Jamaica 15             10
+Mateo      Mexico  5              10
+Milana     Mexico  15             9
+
+- Reduced-form relationship: (10-9) - (12-10) = -1.
+
+## Wald Estimator
+- A simple Wald estimator
+$$
+\rho_{IV} = \frac{(\bar{\rY}_{A=1,N=1} - \bar{\rY}_{A=0,N=1}) - (\bar{\rY}_{A=1,N=0} - \bar{\rY}_{A=0,N=0})}{(\bar{\rX}_{A=1,N=1} - \bar{\rX}_{A=0,N=1}) - (\bar{\rX}_{A=1,N=0} - \bar{\rX}_{A=0,N=0})}
+$$
+    - $\rA$: dummy for having arrived young
+    - $\rN$: dummy for having been born in a non-English-speaking countries
+    - $\rY$: log wage
+    - $\rX$: a measure of English-language skills (1 = poor, 2 = well, 3 = very well)
+    
+## Regressions
+- First stage regression:
+$$
+\rX_{ija} = \alpha + \rho \rZ_{ija} + \delta \rA_a + \gamma \rN_j + \rvW'\vphi + e_{ija}
+$$
+- Reduced form regression:
+$$
+\rY_{ija}= \alpha + \rho \rZ_{ija} + \delta \rA_a + \gamma \rN_j + \rvW'\vphi + e_{ija}
+$$
+- Instrument $\rZ_{ija}$ is an interaction between $\rA_{ija}$ and $\rN_j$.
+
+## First Stage
+
+```{r fig.width=6, fig.height=4, echo=FALSE, fig.align='center'}
+grid.raster(readPNG("w12/fig1p1.png"))
+```
+
+## First Stage: Difference 
+
+```{r fig.width=6, fig.height=4, echo=FALSE, fig.align='center'}
+grid.raster(readPNG("w12/fig1p2.png"))
+```
+
+## Reduced Form for Wages
+```{r fig.width=6, fig.height=4, echo=FALSE, fig.align='center'}
+grid.raster(readPNG("w12/fig2p1.png"))
+```
+
+## Reduced Form for Wages: Difference
+```{r fig.width=6, fig.height=4, echo=FALSE, fig.align='center'}
+grid.raster(readPNG("w12/fig2p2.png"))
+```
+
+
+## First Stage and Reduced From Estimates
+- Control for age, gender, race, and Hispanic
+```{r fig.width=6, fig.height=4, echo=FALSE, fig.align='center'}
+grid.raster(readPNG("w12/tab2.png"))
+```
+
+## Back-door DID Example: @madrian1994employment
+- Hypothesis: Is There Evidence of Job-lock?
+    - Does health insurance distort job mobility?
+    - Do employees really feel constrained by health insurance?
+- Having health insurance increases the cost of quitting.
+- Why is this important?
+    - Health insurance is one of the most important job amenities
+    - Evaluating health care system reforms
+    - Match-specific component of productivity
+
+## Identification
+- Ideally, we want to have two groups of workers who are similar in all respects except for their insurance status.
+    - If we find difference in mobility, it can be attributed to the insurance.
+- In reality, native comparison has selection bias.
+- Use three cost factors to refine comparison groups:
+    - Having other health insurance
+    - Having larger family size
+    - Having pregnant wives
+
+## Cost Factor 1: A DID Comparison {.vcenter .flexbox}
+- Implications and required assumptions
+    - $M_{11} - M_{01} > 0$ 
+    - $(M_{11} - M_{01)} - {M_{11} - M_{01}} >0$
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w12/mat1.png"))
+```
+
+## Empirical Implementation
+```{r fig.width=4, fig.height=2, echo=FALSE}
+grid.raster(readPNG("w12/reg.png"))
+```
+
+- $\Phi$ is the standard normal cumulative density function
+- $\vz$ is a vector of observable demographic characteristics
+- $\beta_0$: mobility rate for people who have no insurance
+- $\beta_1$: marginal impact of having own employment-based HI on mobility
+- $\beta_2$: marginal impact of having other source of HI on mobility
+- $\beta_3$: extra impact of having both sources of HI on mobility
+
+## Cost Factor 1: Having Other HI {.vcenter .flexbox}
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w12/tab3.png"))
+```
+
+
+## Cost Factor 1: Mobility Matrix
+```{r fig.width=4, fig.height=3, echo=FALSE}
+grid.raster(readPNG("w12/mat2.png"))
+```
+
+- a: $\frac{0.115 - 0.085}{0.115} \approx 0.260$.
+- b: $0.26 - \frac{0.244- 0.256}{0.244} \approx 0.26 - (-5.1) = 0.311$.
+- c: $\frac{0.115 - 0.081}{0.115} \approx 0.296$, where $0.081 = \frac{0.085}{1 + 0.051}.$
+
+
+    
+## References {.allowframebreaks}

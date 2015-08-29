@@ -1,0 +1,282 @@
+---
+title: 'Week 10: More on RD'
+author: "JJ Chen"
+date: "March 20, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    css: style.css
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    includes:
+      in_header: macro.html
+    incremental: no
+    keep_md: no
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    smaller: no
+    transition: default
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+library(png)
+library(grid)
+```
+
+## Today's Plan {.build}
+
+1. Reading RD papers
+    - How good are internal validity and external validity?
+    - @CardGiuliano2014
+    - @AngristBattistinVuri2014
+2. RD estimation methods
+    - Local linear regression
+3. Fuzzy "RD" with kink and regression kink design
+
+# Reading RD Papers
+## Some General Questions to Ask Ourselves
+- What are the running variable, the treatment, and the outcomes?
+- What kinds of people have incentives to manipulate the running variable?
+- Is there a density test? Covariates balanced Tests? How good are they?
+    - If there are multiple cutoffs, we should expect multiple tests
+    - Often time we would like to see as many covariates balanced tests as possible. And beware of whether the covariate are "relevant"
+- For Fuzzy RD, do the assumptions for the LATE theorem hold? 
+    - What're those assumptions again?
+- Are we interested in behavior or outcomes of those marginal people around the cutoff?
+
+## @CardGiuliano2014: Introduction
+- @CardGiuliano2014 evaluate gifted classroom programs and show heterogeneous program effects for students.
+    - Plan A: Gifted students based on IQ scores of 130
+    - Plan B: Gifted students based on IQ scores of 116
+    - Plan C: Gifted students score highest among their cohorts
+- They show that assignments based on IQ thresholds has no impact on student achievement, whereas assignment based on achievement rank sees significant gains in reading and math and the gain is persistent at least for another grade.
+
+## @CardGiuliano2014: Framework
+- They are interested in the impact of gifted program on test scores
+- But once a kid is "classified" as gifted students, other things happen
+    1. Gifted classroom and teacher
+    2. Gifted peers
+    3. Individual gifted services
+- A simple structural model:
+$$
+\rY = \beta_1 \rD_{\mathrm{class}} + \beta_2 \rQ_{\mathrm{peer}} + \beta_3 \rD_{\mathrm{gifted}} + \rvX'\vgamma + \lambda \rvar{IQ}^* + \eta
+$$
+    - $\rvar{IQ}^*$ is the running variable, * means we have perfect measure
+    
+## @CardGiuliano2014: ID Assumptions
+- The model:
+$$
+\rY = \beta_1 \rD_{\mathrm{class}} + \beta_2 \rQ_{\mathrm{peer}} + \beta_3 \rD_{\mathrm{gifted}} + \rvX'\vgamma + \lambda \rvar{IQ}^* + \eta
+$$
+- Taking expectations conditional on observed IQ:
+$$
+\begin{split}
+\E(\rY|\rvar{IQ}) =& \beta_1 \Pr(\rD_{\mathrm{class}} = 1 \mid \rvar{IQ}) + \beta_2 \E(\rQ_{\mathrm{peer}} \mid \rvar{IQ}) + \\
+                    & \beta_3 \Pr(\rD_{\mathrm{gifted}} = 1 \mid \rvar{IQ}) + \E(\rvX'\vgamma + \lambda \rvar{IQ} + \eta \mid \rvar{IQ})
+\end{split}
+$$
+- Suppose the gifted threshold is $T$, what assumptions do we need to make in order to get
+$$
+\begin{split}
+\mathrm{Dis}(\rY) &= \lim_{\rvar{IQ} \to \rvar{T}^+} \E(\rY\mid\rvar{IQ}) - \lim_{\rvar{IQ} \to \rvar{T}^-} \E(\rY\mid\rvar{IQ}) \\
+                  &= \beta_1 \mathrm{Dis}(\rP_{\mathrm{class}}) + \beta_2 \mathrm{Dis}(\rQ_{\mathrm{peer}}) + \beta_3 \mathrm{Dis}(\rP_{\mathrm{gifted}})
+\end{split}
+$$
+
+## @CardGiuliano2014: Manipulation {.flexbox .vcenter}
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w10/w10img.png"))
+```
+
+
+## @CardGiuliano2014: Biases
+- If the ID assumptions we made are fine, the RF, $\mathrm{Dis}(\rY)$, is unbiased
+    - What does the RF mean? Is it policy relevant?
+- Suppose we want to know more about the impact of gifted classroom on test scores, we can rescale the RF
+$$
+\frac{\mathrm{Dis}(\rY)}{\mathrm{Dis}(\rP_{\mathrm{class}})} = \beta_1 + \beta_2 \frac{\mathrm{Dis}(\rQ_{\mathrm{peer}})}{\mathrm{Dis}(\rP_{\mathrm{class}})} + \beta_3 \frac{\mathrm{Dis}(\rP_{\mathrm{gifted}})}{\mathrm{Dis}(\rP_{\mathrm{class}})}
+$$
+    - How would you interpret the descaled RF?
+- In general, what do we learn from this setting?
+    
+## @AngristBattistinVuri2014: Introduction
+- @AngristBattistinVuri2014 documents a relationship between class size and test score manipulation in southern Italy
+    - Background: Relate to @AngristLavy1999 and @UrquiolaVerhoogen2009
+- Usually we focus on manipulation of the running variable
+    - But manipulating outcome variables seem problematic too
+    - They show score manipulation is pos corr with CS
+- Ignoring other institutional details might lead to misleading results
+
+## @AngristBattistinVuri2014: Score Manipulations
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+img0 <- readPNG("w10/w10img0.png")
+grid.raster(img0)
+```
+
+## @AngristBattistinVuri2014: 1st Graph
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+img1 <- readPNG("w10/w10img1.png")
+grid.raster(img1)
+```
+
+## @AngristBattistinVuri2014: RF Graph
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+img2 <- readPNG("w10/w10img2.png")
+grid.raster(img2)
+```
+
+## @AngristBattistinVuri2014: RD Table
+```{r fig.width=6, fig.height=4, echo=FALSE}
+img3 <- readPNG("w10/w10img3.png")
+grid.raster(img3)
+```
+
+## @AngristBattistinVuri2014: Socre manipulation
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w10/w10img4.png"))
+```
+
+## @AngristBattistinVuri2014: Solution
+- To address score manipulation, they model it as another endogenous variable
+$$
+\rY_{igkt} = \rho_0(t,g) + \beta_1 \rS_{igkt} + \beta_2 \rM_{igkt} + \rho_1 f(\rE_{gkt}) + \eta_{ijkt}
+$$
+    - $\rE_{gkt}$ is the running variable: number of enrollment
+    - $\rS_{igkt}$ is endogenous class size, instrumented by Maimonides' Rules
+    - $\rM_{igkt}$ is endogenous score manipulation, instrumented by randomly assigned school monitors
+- How should we interpret $\beta_1$ and $\beta_2$?
+
+## @AngristBattistinVuri2014: Results
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w10/w10img5.png"))
+```
+
+# Implementing RD
+## Introduction
+- In the homework we mainly use linear and quadratic regression to get RD estimates
+- There are many more complicated methods
+    - But the results we get from different methods should not be too different
+    - And people make judgments based on RD pictures
+- Here are three general methods used for estimating the discontinuity
+    1. Parametric
+    2. Parametric with bandwidth
+    3. Non-parametric
+- The first two methods have been addressed a lot in class, so I will just briefly mention the third one (more on it next semester)
+    
+## Non-paramatric Estimation: LLR
+- Local linear regression (LLR) is a non-parametric method for estimating a functional form
+- When to do LLR? When the exact functional form is a big deal and you don't want to do just linear or quadratic approximation
+    - RD really requires we model the functional form correctly
+- LLR Steps:
+    1. At each $\rX_i = x_i$, we estimate a linear regression within a neighborhood $[x_i - h, x_i + h]$ (thus "local linear regression"): $$\rY = \alpha + \gamma \rX_i, [x_i - h, x_i + h]$$
+    2. No local linear regression at the cutoff
+    
+## LLR with Kernel smoothing
+- Just make the LLR match the data even better, we can use kernel weighting
+- That is, in the LLR
+$$\rY = \alpha + \gamma \rX_i, [x_i - h, x_i + h],$$
+$\rX_i = x_i$ get the most weight, and $x_i - h$ and $x_i + h$ get the least weight
+- There are many different weights: Uniform, triangle, Epanechnikov, Quartic, Triweight, Gaussian, Cosine... And there are many different bandwidths (see @imbens2011optimal for optimal bandwidth)
+
+## Weights
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w10/w10img9.png"))
+```
+
+## R code
+- There are packages that implement LLR for RD, such as `rd` in Stata or `rdd` in R
+    - Stata: `ssc install rd`
+    - R: `install.packages("rdd")`
+- Here is a simple simulation of sharp RD data using R
+```{r,results='hide',message=FALSE}
+x <- runif(1000, -1, 1)
+covar <- rnorm(1000)
+y <- 1 + 2 * x + 3 * covar + 4 * (x >= 0) + rnorm(1000)
+library("rdd")
+RD <- RDestimate(y ~ x | covar)
+# plot(RD)
+```
+
+## RD: LLR plot
+```{r, fig.height=4,fig.width=6, fig.align='center', echo=FALSE}
+plot(RD)
+```
+
+
+# RK Design
+## Introduction
+- In this section we will consider two extensions to RD design:
+    1. Fuzzy RD with a kink instead of a jump
+    2. Regression kink design (or RK from now)
+- They share some similarities with RD and are relatively new techniques, which means perhaps there are still opportunities for arbitrage (I always wish everyone can stick to the principle of no arbitrage)
+- I will just present the key ideas. To be more serious about ID assumptions or estimations, here are some relevant papers @NBERw14535, @saez2010taxpayers, @card2015inference, @dong2014jump, @ando2013much
+
+## Fuzzy "RD" with a Kink: Introduction
+- Recall that fuzzy RD uses a _jump_ in the probability of binary treatment $\rD_i$ ($P_+ - P_- \neq 0$)
+$$
+\begin{split}
+\rho &= \lim_{\Delta \to 0} \frac{\E(\rY_i \mid x_0 < x_i < x_0 + \Delta) - \E(\rY_i \mid x_0 - \Delta < x_i < x_0)}{\E(\rD_i \mid x_0 < x_i < x_0 + \Delta) - \E(\rD_i \mid x_0 - \Delta < x_i < x_0)} \\
+&= \frac{E_+ - E_-}{P_+ - P_-}
+\end{split}
+$$
+- What if there is no jump but just a _kink_? ($P_+' - P_-' \neq 0$)
+$$
+\rho = \frac{E_+' - E_-'}{P_+' - P_-'}
+$$
+
+## Fuzzy "RD" with a Kink: 1st
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w10/w10img6.png"))
+```
+
+## Fuzzy "RD" with a Kink: RF
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w10/w10img7.png"))
+```
+
+## RK: Introduction
+- Consider a constant-effect model
+$$
+\rY_i = \rho \rT_i + f(\rX_i) + \eta_i,
+$$
+- Instead of a binary treatment, consider a continuous treatment variable $\rT_i$ which is a deterministic function of a running variable $\rX_i$, $\rT_i = g(\rX_i)$ with a kink at $\rX_i = x_0$
+    - Example: Progressive taxation -- Marginal tax rates are determined by the income level
+    - Example: Unemployment insurance -- The amount of unemployment benefit or the duration of getting the benefit can be based on income in previous year
+
+## RK: Introduction
+- If $g(\rX_i)$ and $\E(\eta\mid \rX_i = x_0)$ have derivatives that are continuous in $\rX_i$ at $\rX_i = x_0$, then we have
+$$
+\begin{split}
+\rho &= \frac{
+\lim\limits_{x_0 \to 0^+} \frac{d\E(\rY_i\mid\rX_i = x_0)}{d\rX_i}\mid_{x_0} - 
+\lim\limits_{x_0 \to 0^-} \frac{d\E(\rY_i\mid\rX_i = x_0)}{d\rX_i}\mid_{x_0}
+}{
+\lim\limits_{x_0 \to 0^+} \frac{dg(\rX_i)}{d\rX_i}\mid_{x_0} - 
+\lim\limits_{x_0 \to 0^-} \frac{dg(\rX_i)}{d\rX_i}\mid_{x_0}
+} \\
+&= \frac{E_+' - E_-'}{\rT_+' - \rT_-'},
+\end{split}
+$$
+which identify the causal parameter $\rho$
+- Note that the denominator is still the treatment variable, instead of the probability of getting treatment
+- In a nutshell: we have jumps in the first derivatives
+
+## RK Graph
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w10/w10img8.png"))
+```
+
+## References {.allowframebreaks}

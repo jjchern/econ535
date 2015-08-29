@@ -1,0 +1,182 @@
+---
+title: 'Week 14: FE Vs Lagged Dependent Variable'
+author: "JJ Chen"
+date: "April 17, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    smaller: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+### Today's Plan
+
+- Correlated Random Effects Panel Data Models
+- FE and Linear Dynamic Model
+
+# RE and Correlated RE Model
+## RE Model
+### Recap: RE Model
+- We are interested in the individual effect model for $\rY_{it}$
+$$
+\E(\rY_{it}) = \rvX_{it}'\vbeta + \alpha_i
+$$ or
+$$
+\rY_{it} = \rvX_{it}'\vbeta + \alpha_i + \epsi_{it}.
+$$
+- In the RE model, $\alpha_i$ is assumed to be random, which implies that $\alpha_i$ is uncorrelated with $\rvX_{it}$
+- This assumption allows us to estimate the individual effect model using a GLS estimator because we know the correlation structure of the composite error term $\eta_{it} = \alpha_i + \epsi_{it}$
+- Rewrite the model in Matrix form: $\vy = \mX\vbeta + \veta$
+    - $\hat{\vbeta}_{GLS} = (\mX'\mOmega\inv\mX)\inv\mX'\mOmega\inv\vy$, where $\mOmega = \V(\veta\mid\mX)$
+
+## Correlated RE Model
+### Correlated RE Model: Mundlak Projection
+- Correlated RE Model let $\alpha_i$ be correlated with $\rvX_{it}$ and still estimate the model through GLS
+- The key step is the Mundlak projection:
+$$
+\E(\alpha_i\mid\rvX_{it}) = \bar{\rvX}_i' \vdelta 
+$$ or
+$$
+\alpha_{i} = \bar{\rvX}_i' \vdelta + \upsilon_{i}
+$$
+- We then back to the RE set up:
+$$
+\begin{split}
+\rY_{it} &= \rvX_{it}'\vbeta + \alpha_i + \epsi_{it} \\
+         &= \rvX_{it}'\vbeta + \bar{\rvX}_i' \vdelta + \upsilon_{i} + \epsi_{it} \\
+         &= (\rvX_{it} - \bar{\rvX})'\vbeta + \bar{\rvX}_i'(\vbeta + \vdelta) + \upsilon_{i} + \epsi_{it} \\
+         &= \rvZ_{it}'\vgamma + \upsilon_{i} + \epsi_{it}
+\end{split}
+$$
+
+### Correlated RE Model: Chamberlain Project
+- We can also use a more flexible specification for $\alpha_i$:
+$$
+\alpha_i = \sum\limits_{t=1}^T \beta_t \rX_{it} + \upsilon_{i}
+$$
+
+# FE and Lagged Models
+## FE Models
+### Recap: FE Regression
+- In reality, when we run a serious FE regression
+$$
+\rY_{it} = \alpha + \rho \rD_{it} + \rvA_i'\vgamma + \rvI_t'\vdelta  + \rvX_{it}'\vbeta + e_{it}, 
+$$
+we're trying to get a naive conditional mean comparisons:
+$$
+\E(\rY_{it} \mid \rvA_i, \rvI_t, \rvX_{it}, \rD_{it} = 1) - \E(\rY_{it} \mid \rvA_i, \rvI_t, \rvX_{it}, \rD_{it} = 0),
+$$
+and we really want to measure is a causal relationship between $\rY_{it}$ and $\rD_{it}$,
+$$
+\E(\clrp{\rY_{1it}} \mid \rvA_i, \rvI_t, \rvX_{it}, \rD_{it} = 1) - \E(\clrp{\rY_{0it}} \mid \rvA_i, \rvI_t, \rvX_{it}, \rD_{it} = 1).
+$$
+
+### Recap: FE Model Assumptions I
+- Let's first review the ID assumptions for FE models
+- CIA for $\rY_{0it}$: $\rY_{0it} \indep \rD_{it} \mid \rvA_i, \rvI_t, \rvX_{it}$
+    - Is this strict exogeneity?
+- CIA implies Mean Independence Assumption for $\rY_{0it}$:
+$$
+\E(\rY_{0it} \mid \rvA_i, \rvI_t, \rvX_{it}, \clrp{\rD_{it}}) = \E(\rY_{0it} \mid \rvA_i, \rvI_t, \rvX_{it}),
+$$ or to write it slightly differently,
+$$
+\E(\rY_{0it} \mid \rvA_i, \rvI_t, \rvX_{it}, \clrp{\rD_{it} = 1}) = \E(\rY_{0it} \mid \rvA_i, \rvI_t, \rvX_{it}, \clrp{\rD_{it} = 0}).
+$$
+- Time-varing treatment, such as union status, is as good as ramdomly assigned conditional on the covariates.
+
+### Recap: FE Model Assumption II
+- To esimate a FE model, another key assumption is the linear additive structure for the potential outcome $\rY_{0it}$:
+$$
+\E(\rY_{0it} \mid \rvA_i, \rvI_t, \rvX_{it}) = \alpha + \clrp{\rvA_{i}'\vgamma + \rvI_t'\vdelta} + \rvX_{it}'\vbeta,
+$$
+or to write it slightly differently
+$$
+\begin{split}
+& \E(\rY_{0it} \mid i, t, \rvX_{it}) = \clrp{\alpha_i + \lambda_t} + \rvX_{it}'\vbeta \\
+\implies & \rY_{0it} = \rvX_{it}'\vbeta + \clrp{\alpha_i + \lambda_t} + [\rY_{0it} - \E(\rY_{0it})] \\
+\implies & \rY_{0it} = \rvX_{it}'\vbeta + \clrp{\alpha_i + \lambda_t} + \epsi_{it}
+\end{split}
+$$
+- Why is the linear structure important for estimation?
+
+### Recap: FE Model Assumption III
+- The last assumption is the additive homogenenous treatment effect:
+$$
+\E(\rY_{1it} \mid i, t, \rvX_{it}, \rD_{it} = 1) = \E(\rY_{0it} \mid i, t, \rvX_{it}, \rD_{it} = 0) + \rho
+$$ or
+$$
+\rho = \E(\rY_{1it} \mid i, t, \rvX_{it}, \rD_{it} = 1) - \E(\rY_{0it} \mid i, t, \rvX_{it}, \rD_{it} = 0)
+$$
+
+### Recap: FE Models
+- The three assumptions implies the CEF of interest:
+$$
+\E(\rY_{it} \mid i, t, \rvX_{it}, \rD_{it}) = \alpha_i + \lambda_t + \rvX_{it}'\vbeta + \rho \rD_{it}.
+$$
+- By Regression Justification III, we can run
+$$
+\rY_{it} = \alpha_i + \lambda_t + \rvX_{it}'\vbeta + \rho \rD_{it} + e_{it},
+$$ or the equivalent LSDV regression
+$$
+\rY_{it} = \alpha + \rho \rD_{it} + \rvA_i'\vgamma + \rvI_t'\vdelta  + \rvX_{it}'\vbeta + e_{it}.$$
+
+## Lagged Models
+### Motivation for Lagged Models
+- The Key ID assumption is that $$\rY_{0it} \indep \rD_{it} \mid \rvA_i, \rvI_t, \rvX_{it}$$
+    - which is equivalent to say that $\rvA_i$, $\rvI_t$, and $\rvX_{it}$ are important omitted variables if we fail to control for them in a regression
+    - we can also connect to the parallel trend assumption, why?
+- The Ashenfelter's dip we discuss in class suggests that the above CIA might not be plausible. Why?
+- Other similar examples: remedial education program, school turnaround grants, educational tracking
+
+### ID Assumption for Lagged Models
+- If we worry about sorting based on previous outcomes, which is common, we might want to consider another ID assumption:
+$$\rY_{0it} \indep \rD_{it} \mid \rY_{i,t-h}, \rvI_t, \rvX_{it}.$$
+    - In this case, we think the important omitted variable is pre-treatment trends
+- The above ID assumption implies regression
+$$
+\rY_{it} = \alpha + \theta \rY_{i,t-h} + \lambda_t + \rho \rD_{it} + \rvX_{it}'\vbeta + e_{it}.
+$$
+- But what if you are not sure about whether there is ability bias or sorting based on previous outcomes?
+
+### Solution 1: Assume Both (Dynamic Panel Data Methods)
+- If we assume both, then we are think the following ID assumptions:
+$$\rY_{0it} \indep \rD_{it} \mid \rY_{i,t-h}, \rvA_i \rvI_t, \rvX_{it},$$
+which implies a fixed effect dynamic regression
+$$
+\begin{split}
+& \rY_{it} = \theta \rY_{i,t-h} + \alpha_i + \lambda_t + \rho \rD_{it} + \rvX_{it}'\vbeta + e_{it}. \\
+\implies & \Delta\rY_{it} = \theta\Delta \rY_{i,t-h} + \Delta\lambda_t + \rho \Delta\rD_{it} + \Delta\rvX_{it}'\vbeta + \Delta e_{it}.
+\end{split}
+$$
+- But we can't estimate $\rho$ consistently because of the Nickell bias 
+    - $\Cov(\Delta \rY_{i,t-h}, \Delta e_{it}) \neq 0$, HW6 from last semester
+    
+### Solution 1: Assume Both (Dynamic Panel Data Methods)
+- To estimate the difference model consistently in large sample, Anderson and Hsiao suggest using lagged outcomes as IVs 
+    - Stata command: `xtivreg, fd`
+- Arellano and Bond later suggest using GMM so that one can exploit all information in the IVs and get a more effecicient esitimates
+    - Stata command: `ssc install xtabond2`
+- In class we know that the ER assumption for the IVs might not hold (serial correlation for the error process), and also weak IV problem
+    - We will learn it again in Prof. Casey's class
+    
+### Solution 2: Assume Either One
+- MHE also suggests estimating both the FE model and lagged model and see if the result is sensitive
+- FE and lagged model have a bracketing property
+    - If FE is the true model, lagged regression estimate gives a lower bound
+    - If lagged model is the true model, FE estimate gives a upper bound

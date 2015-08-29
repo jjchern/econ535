@@ -1,0 +1,177 @@
+---
+title: 'Week 4: IVs with Constant Effects'
+author: "JJ Chen"
+date: "February 6, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+    incremental: no
+  ioslides_presentation:
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    smaller: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+### Anoucement
+- Week 4:
+    - IV Motivations, Assumptions, Mean Comparison (Wald Estimator)
+    - IV Implementations: 2SLS
+    - IV Example Paper: @card1997immigrant, @hoxby1994does (we will not cover the hoxby paper)
+- Week 5: IV Estimation and Inference
+- Week 6: Week IV and Specification Tests
+- Week 7: LATE
+- Week 8: Midterm Review?
+
+# IV Motivations and Assumptions
+## 
+### (One) Traditional IV setting
+- In class, we started by discussing IVs with constant effect
+    - Close to traditional IV practice; allow us to focus on the first order issues: identification
+    - But it imposes strong assumptions (will be relaxed)
+- Example:
+    - Y-Eqn: $\rY_i = f(\rD_i, \epsi_i) = \beta_0 + \beta_1 \rD_i + \epsi_i$
+    - D-Eqn: $\rD_i = f(\rZ_i, \upsilon_i) = \alpha_0 + \alpha_1 \rZ_i + \upsilon_i$
+- Key Assumptions to identify $\beta_1$ (more on them later)
+    - $\EE{\rZ_i\epsi_i}=0$, $\EE{\rZ_i\upsilon_i}=0$, $\CC{\rD_}{\rZ_i} \neq 0$ $\implies \beta_1^{IV} = \frac{\CC{\rY_i}{\rZ_i}}{\CC{\rD_i}{\rZ_i}}$
+- Implicit Assumptions:
+    - Constant effect; additive separability; point identification...
+   
+### Motivations
+- We are interested in a single structural eqn:
+    - $\rY_{si} = \alpha + \rho \rS_i + \rvA'_i\vgamma + \epsi_i$
+    - $\rho = \rY_{12,i}-\rY_{11,i}=\rY_{16,i}-\rY_{15,i}$...
+- But we can't run a dream pop regression because of "unavailable" $\rvA'_i$
+    - $\rY_i = \alpha + \rho \rS_i + \rvA'_i\vgamma + e_i$
+- Assume we have an IV $\rZ_i$, problem solved!
+    - Should we end the review section and just go find IVs?
+- More broadly, IV is a general method of studying causality
+    - _"Clean"_ variations in "treatment" variable 
+    - Other ID strategies link closely to the IV idea: DID, RD
+- Other Motivations: measurement error, reversal causality, random assignment and actual exposure in experiments 
+
+### Assumptions and Why Does IV Work
+- In a nutshell, we want to capture a single channel (IV chain):
+    - $(\rZ \to \rY) = (\rZ \to \rD) \times (\rD \to \rY)$
+    - RF = 1st $\times$ Causal Effect of Interest _(maybe)_
+- Conceptual ID Assumptions:
+    1. _Exclusion Restriction_: Only one channel through which $\rZ$ affects $\rY$
+        - One implication: In a no-1st sample, we should expect RF = 0, example?
+        - Another implication; Look at a sample that 1st is active, but the primary channel is not, example?
+        - Can we run a reg of $\rY_i$ on both $\rD_i$ and $\rZ_i$ to test whether ER hold? 
+    2. _Relevance Condition_: $\rZ$ has a causal impact on $\rD$ (with decent size)
+- Ex: Suppose you want to know the impact of school per-pupil spending on students' long term labor market outcome
+    - "Clan variations"? Math? Verbal interpretation?
+    
+### IV Mean Comparision: Binary IV I
+- RF = 1st $\times$ $\rho^{IV} \implies$ 
+- $\rho^{IV} = \frac{RF}{1st} = \frac{\CC{\rY_i}{\rZ_i}}{\CC{\rD_i}{\rZ_i}} = \frac{\CC{\rY_i}{\rZ_i}/\VV{\rZ_i}}{\CC{\rD_i}{\rZ_i}/\VV{\rZ_i}}$
+- When IV is a dummy, both RF and 1st can be simplified
+    - RF: $\CC{\rY_i}{\rZ_i} = \left[ \EE{\rY_i\mid\rZ_i=1} - \EE{\rY_i\mid\rZ_i=0}\right] p(1-p)$
+    - 1st: $\CC{\rD_i}{\rZ_i} = \left[ \EE{\rD_i\mid\rZ_i=1} - \EE{\rD_i\mid\rZ_i=0} \right] p(1-p)$
+- The ratio $\rho^{IV}$ is the Wald estimator $\rho^{Wald}$, which provides the essential idea of IV: 
+    - _RF mean comparisons across groups defined by the IV, scaled by the 1st_
+    
+### IV Mean Comparision: Binary IV II
+- Another way to derive the Wald estimator is through the single structural eqn with constant effect:
+    - $\rY_{i} = \alpha + \rho \rD_i + \eta_i$
+    - $\EE{\rY\mid\rZ_i=1} = \alpha + \rho \EE{\rD_i\mid\rZ=1} + \EE{\eta_i\mid\rZ_i=1}$
+    - $\EE{\rY\mid\rZ_i=0} = \alpha + \rho \EE{\rD_i\mid\rZ=0} + \EE{\eta_i\mid\rZ_i=0}$
+    - $\EE{\rY\mid\rZ_i=1} - \EE{\rY\mid\rZ_i=0} = \rho \left[\EE{\rD_i\mid\rZ_i=1} - \EE{\rD_i\mid\rZ_i=0} \right]$
+        - ER $\implies \EE{\eta_i\mid\rZ_i=1} = \EE{\eta_i\mid\rZ_i=0}$
+- So $\rho^{Wald}$ capture the ratio of mean diff
+- $\rho^{Wald} = \frac{RF}{1st}= \frac{\EE{\rY\mid\rZ_i=1} - \EE{\rY\mid\rZ_i=0}}{\EE{\rD_i\mid\rZ_i=1} - \EE{\rD_i\mid\rZ_i=0}}$
+- Further simplification: if $\rD_i$ is binary, 1st becomes mean difference in conditional probability
+    - $\prob{\rD\mid\rZ_i=1} - \prob{\rD\mid\rZ_i=0}$
+    
+# IV Implementation
+##
+### IV Implementation: 2SLS
+- What if we have 
+    1. a multi-valued IV and controls
+    2. multiple IVs
+    3. RF and 1st come from different sample
+- 2SLS is the way to go, but just beware the usual mistakes
+
+### 2SLS with One IV and Covariates
+- Suppose a causal model with controls is
+    - $\rY_i = \rvX_i'\valpha + \rho \rS_i + \eta_i$, $\eta_i = \rvA'_i\vgamma + \upsilon_i$
+    - Even if the IV is insanely good (An amazing valid ER), we might still want to control for some "useless" covariates to reduce std.err.
+- 2SLS: Get predicted value: $\rS_i = \hat{\rS}_i + \xi_{1i}$ and derive 2st:
+    - 2st: $\rY_i = \rvX_i'\valpha + \rho \hat{\rS}_i + [\eta_i+\rho\xi_{1i}]$
+- Notice when the IV is $\hat{\rS}^*_i$, 2SLS = IV
+    - $\hat{\rS}^*_i$ is the res of running a reg of $\hat{\rS}_i$ on $\rvX_i$
+    - $\rho^{2SLS} = \frac{\CC{\rY_i}{\hat{\rS}^*_i}}{\VV{\hat{\rS}^*_i}} = \frac{\CC{\rY_i}{\hat{\rS}^*_i}}{\CC{\rS_i}{\hat{\rS}^*_i}} = \rho^{IV}$
+- Note: manual 2SLS won't get correct std.err.
+
+### ILS with One IV and Covariates
+- ILS: Find a 1st $\rS_i = \rvX_i'\vpi_{10} + \pi_{11}\rZ_i + \xi_{1i}$ and derive RF
+    - $\rY_i = \rvX_i'\valpha + \rho [\rvX_i'\vpi_{10} + \pi_{11}\rZ_i + \xi_{1i}] + \eta_i$
+    - $\rY_i = \rvX'_i[\valpha + \rho\vpi_{10}] + \rho\pi_{11}\rZ_i + [\rho\xi_{1i} + \eta_i]$
+    - RF: $\rY_i = \rvX_i'\vpi_{20} + \pi_{21}\rZ_i + \xi_{2i} \implies \rho^{ILS} = \frac{\pi_{21}}{\pi_{11}}$
+- Notice that one-IV 2SLS equals IV, when the IV is $\rZ^*_i$, and it also equals ILS
+    - $\rZ^*_i$ is the res of running a reg of $\rZ_i$ on $\rvX_i$
+    - $\frac{\CC{\rY_i}{\hat{\rS}^*_i}}{\VV{\hat{\rS}^*_i}} = \frac{\CC{\rY_i}{\hat{\rS}^*_i}}{\CC{\rS_i}{\hat{\rS}^*_i}} = \frac{\CC{\rY_i}{\rZ^*_i}}{\CC{\rS_i}{\rZ^*_i}} = \frac{\pi_{21}}{\pi_{11}}$
+
+### 2SLS with Multiple IVs
+- 2SLS yields a weighted average of estimates one would get using each of the IVs separately
+- Let $\rho_j^{IV} = \frac{\CC{\rY_i}{\rZ_{ji}}}{\CC{\rD_i}{\rZ_{ji}}}, j = 1,2$
+    - Two IV estimands using $\rZ_{1i}$ and $\rZ_{2i}$ to instrument $\rD_i$
+- 2SLS estimand will be $\rho^{2SLS} = \phi\rho_1 + (1-\phi)\rho_2$
+    - $\phi$ captures the relative strength of the IVs in the 1st
+- 2SLS with multiple IVs will also give smaller std.err.
+    - Use more "clean" variations
+    
+### Visual IV
+- When we have multiple IVs, each IV defines a causal effect (hopefully) for one group of people 
+    - $\EE{\rY_i\mid\rR_i}=\alpha + \rho \EE{\rD_i\mid\rR_i} = \alpha + \rho \prob{\rD_i=1\mid\rR_i}$, $\rR_i \in j = 1, \cdots, J$
+    - $\bar{y}_j = \alpha + \rho \hat{p}_j + \bar{\eta}_j$
+    - Look like a 2SLS?
+- In a constant effect linear model, GLS (in this case, WLS) would be efficient for grouped data
+    - Recall from last semester, one motivation for learning GLS is heteroskedasticity
+    - If $\VV{\eta_i} = \sigma^2_{\eta}$, then the group variance is $\rfrac{\sigma^2_{\eta}}{n_j}$
+- GLS is 2SLS, so 2SLS is the efficient linear combination of the underlying Wald estimates
+
+### Split Sample IV
+- Recall the IV estimator is
+    $\rho^{IV} = \frac{RF}{1st}$
+- Nothing in the formula prevents us from estimating RF and 1st separately from different sample
+- Example:
+    - RF: One dataset on income and draft numbers, but no veteran status
+    - 1st: Another dataset on draft numbers and veteran status, but no income information
+    
+### 2SLS Mistakes
+1. Doing 2SLS manually
+2. Doing 2SLS manually and/or forget to add the same covariates in both the 1st and 2st
+3. Doing 2SLS manually and/or use nonlinear model for 1st
+
+# Example Paper
+## 
+### Questions and Discussions
+- Q: Does Competition Among Public Schools Benefit Students and
+Taxpayers?
+    - Competition is good, but also economics of scale
+    - We can run a OLS, are we done? 
+    - Direction of Bias?
+- How to measure the degree of competition among public school districts within metropolitan areas?
+- IV: number of streams (cross section variations)
+    - What are the key ID assumptions?
+    - Table 1: What can we conclude from the 1st reg table?
+- Table 2 and 2a, 3, 4 and 4a: Compare OLS with IV estimates
+- Aside: many other competing policies: charter schools, voucher plans, catholic schools, private schools, competitions among school districts...
+    - Which policies are more effective?
+
+### References {.allowframebreaks}

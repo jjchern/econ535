@@ -1,0 +1,322 @@
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: { 
+      extensions: ["color.js",
+                   "cancel.js",
+                   "AMSsymbols.js",
+                   "AMSmath.js"],
+      equationNumbers: { autoNumber: "AMS" },
+      Macros: {
+          xspace: '',
+          ensuremath: ''
+        }
+    }
+  });
+</script>
+
+<div style="display:none">\( 
+
+% short eps and epsi
+\newcommand{\eps}{\epsilon}
+\newcommand{\epsi}{\varepsilon}
+
+% symbols C,N,Q,R,Z for sets
+\newcommand{\SC}{\mathbb{C}}
+\newcommand{\SN}{\mathbb{N}}
+\newcommand{\SQ}{\mathbb{Q}}
+\newcommand{\SR}{\mathbb{R}}
+\newcommand{\SZ}{\mathbb{Z}}
+
+% calligraphic capital letters
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calB}{\mathcal{B}}
+\newcommand{\calC}{\mathcal{C}}
+\newcommand{\calD}{\mathcal{D}}
+\newcommand{\calE}{\mathcal{E}}
+\newcommand{\calF}{\mathcal{F}}
+\newcommand{\calG}{\mathcal{G}}
+\newcommand{\calH}{\mathcal{H}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calJ}{\mathcal{J}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\calM}{\mathcal{M}}
+\newcommand{\calN}{\mathcal{N}}
+\newcommand{\calO}{\mathcal{O}}
+\newcommand{\calP}{\mathcal{P}}
+\newcommand{\calQ}{\mathcal{Q}}
+\newcommand{\calR}{\mathcal{R}}
+\newcommand{\calS}{\mathcal{S}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calU}{\mathcal{U}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calW}{\mathcal{W}}
+\newcommand{\calX}{\mathcal{X}}
+\newcommand{\calY}{\mathcal{Y}}
+\newcommand{\calZ}{\mathcal{Z}}
+
+% bold lowercase and capital letters for vectors (v) and matrices (m)
+\newcommand{\mA}{\bf A}
+\newcommand{\va}{\bf a}
+\newcommand{\mB}{\bf B}
+\newcommand{\vb}{\bf b}
+\newcommand{\mC}{\bf C}
+\newcommand{\vc}{\bf c}
+\newcommand{\mD}{\bf D}
+\newcommand{\vd}{\bf d}
+\newcommand{\mE}{\bf E}
+\newcommand{\ve}{\bf e}
+\newcommand{\mF}{\bf F}
+\newcommand{\vf}{\bf f}
+\newcommand{\mG}{\bf G}
+\newcommand{\vg}{\bf g}
+\newcommand{\mH}{\bf H}
+\newcommand{\vh}{\bf h}
+\newcommand{\mI}{\bf I}
+\newcommand{\vi}{\bf i}
+\newcommand{\mJ}{\bf J}
+\newcommand{\vj}{\bf j}
+\newcommand{\mK}{\bf K}
+\newcommand{\vk}{\bf k}
+\newcommand{\mL}{\bf L}
+\newcommand{\vl}{\bf l}
+\newcommand{\mM}{\bf M}
+\newcommand{\vm}{\bf m}
+\newcommand{\mN}{\bf N}
+\newcommand{\vn}{\bf n}
+\newcommand{\mO}{\bf O}
+\newcommand{\vo}{\bf o}
+\newcommand{\mP}{\bf P}
+\newcommand{\vp}{\bf p}
+\newcommand{\mQ}{\bf Q}
+\newcommand{\vq}{\bf q}
+\newcommand{\mR}{\bf R}
+\newcommand{\vr}{\bf r}
+\newcommand{\mS}{\bf S}
+\newcommand{\vs}{\bf s}
+\newcommand{\mT}{\bf T}
+\newcommand{\vt}{\bf t}
+\newcommand{\mU}{\bf U}
+\newcommand{\vu}{\bf u}
+\newcommand{\mV}{\bf V}
+\newcommand{\vv}{\bf v}
+\newcommand{\mW}{\bf W}
+\newcommand{\vw}{\bf w}
+\newcommand{\mX}{\bf X}
+\newcommand{\vx}{\bf x}
+\newcommand{\mY}{\bf Y}
+\newcommand{\vy}{\bf y}
+\newcommand{\mZ}{\bf Z}
+\newcommand{\vz}{\bf z}
+
+% bold Greek lowercase letters for vectors (v)
+\newcommand{\valpha}{\boldsymbol \alpha}
+\newcommand{\vbeta}{\boldsymbol \beta}
+\newcommand{\vgamma}{\boldsymbol \gamma}
+\newcommand{\vdelta}{\boldsymbol \delta}
+\newcommand{\vepsi}{\boldsymbol \epsi}
+\newcommand{\vvarepsilon}{\boldsymbol \varepsilon}
+\newcommand{\vzeta}{\boldsymbol \zeta}
+\newcommand{\veta}{\boldsymbol \eta}
+\newcommand{\vtheta}{\boldsymbol \theta}
+\newcommand{\viota}{\boldsymbol \iota}
+\newcommand{\vkappa}{\boldsymbol \kappa}
+\newcommand{\vlambda}{\boldsymbol \lambda}
+\newcommand{\vmu}{\boldsymbol \mu}
+\newcommand{\vnu}{\boldsymbol \nu}
+\newcommand{\vxi}{\boldsymbol \xi}
+\newcommand{\vpi}{\boldsymbol \pi}
+\newcommand{\vrho}{\boldsymbol \rho}
+\newcommand{\vsigma}{\boldsymbol \sigma}
+\newcommand{\vtau}{\boldsymbol \tau}
+\newcommand{\vupsilon}{\boldsymbol \upsilon}
+\newcommand{\vphi}{\boldsymbol \phi}
+\newcommand{\vchi}{\boldsymbol \chi}
+\newcommand{\vpsi}{\boldsymbol \psi}
+\newcommand{\vomega}{\boldsymbol \omega}
+
+% bold Greek capital letters for matrices
+\newcommand{\mGamma}{\boldsymbol \varGamma}
+\newcommand{\mDelta}{\boldsymbol \varDelta}
+\newcommand{\mTheta}{\boldsymbol \varTheta}
+\newcommand{\mLambda}{\boldsymbol \varLambda}
+\newcommand{\mXi}{\boldsymbol \varXi}
+\newcommand{\mPi}{\boldsymbol \varPi}
+\newcommand{\mSigma}{\boldsymbol \varSigma}
+\newcommand{\mUpsilon}{\boldsymbol \varUpsilon}
+\newcommand{\mPhi}{\boldsymbol \varPhi}
+\newcommand{\mPsi}{\boldsymbol \varPsi}
+\newcommand{\mOmega}{\boldsymbol \varOmega}
+
+% vectors of random variables (for Econ 535)
+\newcommand{\rvA}{\ensuremath{\mathrm{A}}}
+\newcommand{\rvB}{\ensuremath{\mathrm{B}}}
+\newcommand{\rvC}{\ensuremath{\mathrm{C}}}
+\newcommand{\rvD}{\ensuremath{\mathrm{D}}}
+\newcommand{\rvE}{\ensuremath{\mathrm{E}}}
+\newcommand{\rvF}{\ensuremath{\mathrm{F}}}
+\newcommand{\rvG}{\ensuremath{\mathrm{G}}}
+\newcommand{\rvH}{\ensuremath{\mathrm{H}}}
+\newcommand{\rvI}{\ensuremath{\mathrm{I}}}
+\newcommand{\rvJ}{\ensuremath{\mathrm{J}}}
+\newcommand{\rvK}{\ensuremath{\mathrm{K}}}
+\newcommand{\rvL}{\ensuremath{\mathrm{L}}}
+\newcommand{\rvM}{\ensuremath{\mathrm{M}}}
+\newcommand{\rvN}{\ensuremath{\mathrm{N}}}
+\newcommand{\rvO}{\ensuremath{\mathrm{O}}}
+\newcommand{\rvP}{\ensuremath{\mathrm{P}}}
+\newcommand{\rvQ}{\ensuremath{\mathrm{Q}}}
+\newcommand{\rvR}{\ensuremath{\mathrm{R}}}
+\newcommand{\rvS}{\ensuremath{\mathrm{S}}}
+\newcommand{\rvT}{\ensuremath{\mathrm{T}}}
+\newcommand{\rvU}{\ensuremath{\mathrm{U}}}
+\newcommand{\rvV}{\ensuremath{\mathrm{V}}}
+\newcommand{\rvW}{\ensuremath{\mathrm{W}}}
+\newcommand{\rvX}{\ensuremath{\mathrm{X}}}
+\newcommand{\rvY}{\ensuremath{\mathrm{Y}}}
+\newcommand{\rvZ}{\ensuremath{\mathrm{Z}}}
+
+% vectors of random variables (for Econ 535)
+\newcommand{\rvA}{\ensuremath{\mathrm{A}}}
+\newcommand{\rvB}{\ensuremath{\mathrm{B}}}
+\newcommand{\rvC}{\ensuremath{\mathrm{C}}}
+\newcommand{\rvD}{\ensuremath{\mathrm{D}}}
+\newcommand{\rvE}{\ensuremath{\mathrm{E}}}
+\newcommand{\rvF}{\ensuremath{\mathrm{F}}}
+\newcommand{\rvG}{\ensuremath{\mathrm{G}}}
+\newcommand{\rvH}{\ensuremath{\mathrm{H}}}
+\newcommand{\rvI}{\ensuremath{\mathrm{I}}}
+\newcommand{\rvJ}{\ensuremath{\mathrm{J}}}
+\newcommand{\rvK}{\ensuremath{\mathrm{K}}}
+\newcommand{\rvL}{\ensuremath{\mathrm{L}}}
+\newcommand{\rvM}{\ensuremath{\mathrm{M}}}
+\newcommand{\rvN}{\ensuremath{\mathrm{N}}}
+\newcommand{\rvO}{\ensuremath{\mathrm{O}}}
+\newcommand{\rvP}{\ensuremath{\mathrm{P}}}
+\newcommand{\rvQ}{\ensuremath{\mathrm{Q}}}
+\newcommand{\rvR}{\ensuremath{\mathrm{R}}}
+\newcommand{\rvS}{\ensuremath{\mathrm{S}}}
+\newcommand{\rvT}{\ensuremath{\mathrm{T}}}
+\newcommand{\rvU}{\ensuremath{\mathrm{U}}}
+\newcommand{\rvV}{\ensuremath{\mathrm{V}}}
+\newcommand{\rvW}{\ensuremath{\mathrm{W}}}
+\newcommand{\rvX}{\ensuremath{\mathrm{X}}}
+\newcommand{\rvY}{\ensuremath{\mathrm{Y}}}
+\newcommand{\rvZ}{\ensuremath{\mathrm{Z}}}
+
+% random variables (for Econ 535)
+\newcommand{\rvar}[1]{\scriptstyle\mathrm{#1}\displaystyle}
+\newcommand{\rA}{\ensuremath{\scriptstyle\mathrm{A}\displaystyle}}
+\newcommand{\rB}{\ensuremath{\scriptstyle\mathrm{B}\displaystyle}}
+\newcommand{\rC}{\ensuremath{\scriptstyle\mathrm{C}\displaystyle}}
+\newcommand{\rD}{\ensuremath{\scriptstyle\mathrm{D}\displaystyle}}
+\newcommand{\rE}{\ensuremath{\scriptstyle\mathrm{E}\displaystyle}}
+\newcommand{\rF}{\ensuremath{\scriptstyle\mathrm{F}\displaystyle}}
+\newcommand{\rG}{\ensuremath{\scriptstyle\mathrm{G}\displaystyle}}
+\newcommand{\rH}{\ensuremath{\scriptstyle\mathrm{H}\displaystyle}}
+\newcommand{\rI}{\ensuremath{\scriptstyle\mathrm{I}\displaystyle}}
+\newcommand{\rJ}{\ensuremath{\scriptstyle\mathrm{J}\displaystyle}}
+\newcommand{\rK}{\ensuremath{\scriptstyle\mathrm{K}\displaystyle}}
+\newcommand{\rL}{\ensuremath{\scriptstyle\mathrm{L}\displaystyle}}
+\newcommand{\rM}{\ensuremath{\scriptstyle\mathrm{M}\displaystyle}}
+\newcommand{\rN}{\ensuremath{\scriptstyle\mathrm{N}\displaystyle}}
+\newcommand{\rO}{\ensuremath{\scriptstyle\mathrm{O}\displaystyle}}
+\newcommand{\rP}{\ensuremath{\scriptstyle\mathrm{P}\displaystyle}}
+\newcommand{\rQ}{\ensuremath{\scriptstyle\mathrm{Q}\displaystyle}}
+\newcommand{\rR}{\ensuremath{\scriptstyle\mathrm{R}\displaystyle}}
+\newcommand{\rS}{\ensuremath{\scriptstyle\mathrm{S}\displaystyle}}
+\newcommand{\rT}{\ensuremath{\scriptstyle\mathrm{T}\displaystyle}}
+\newcommand{\rU}{\ensuremath{\scriptstyle\mathrm{U}\displaystyle}}
+\newcommand{\rV}{\ensuremath{\scriptstyle\mathrm{V}\displaystyle}}
+\newcommand{\rW}{\ensuremath{\scriptstyle\mathrm{W}\displaystyle}}
+\newcommand{\rX}{\ensuremath{\scriptstyle\mathrm{X}\displaystyle}}
+\newcommand{\rY}{\ensuremath{\scriptstyle\mathrm{Y}\displaystyle}}
+\newcommand{\rZ}{\ensuremath{\scriptstyle\mathrm{Z}\displaystyle}}
+
+% some operators
+\newcommand{\newoperator}[3]{\newcommand*{#1}{\mathop{#2}#3}}
+\newcommand{\renewoperator}[3]{\renewcommand*{#1}{\mathop{#2}#3}}
+% operatornames
+\newcommand{\bias}{\operatorname{bias}}
+\newcommand{\col}{\operatorname{col}}
+\newcommand{\spansp}{\operatorname{span}} % \spansp{\mX}
+\newcommand{\kersp}{\operatorname{ker}} % \kersp{\mX}
+\newcommand{\nullsp}{\operatorname{null}} % nullsp{\mX'}
+\newcommand{\corr}{\operatorname{corr}}
+\newcommand{\cov}{\operatorname{cov}} 
+\newcommand{\Cov}{\operatorname{Cov}} % \Cov instead of \cov
+\newcommand{\Var}{\operatorname{Var}} % \Var in some cases
+\newcommand{\dg}{\operatorname{dg}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\E}{\operatorname{E}}
+\newcommand{\V}{\operatorname{V}} % \V
+\newcommand{\CCC}{\operatorname{C}} % \C
+\newcommand{\etr}{\operatorname{etr}}
+\newoperator{\ip}{\mathrm{int}}{\nolimits}
+\newcommand{\kur}{\operatorname{kur}}
+\newcommand{\median}{\operatorname{med}}
+\newcommand{\MSE}{\operatorname{MSE}}
+\newcommand{\plim}{\operatorname{plim}}
+\newcommand{\rk}{\operatorname{rk}}
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\var}{\operatorname{var}}
+\renewcommand{\vec}{\operatorname{vec}}
+\newcommand{\vech}{\operatorname{vech}}
+
+% other definitions
+\newcommand{\distr}{\sim}
+\newcommand{\adistr}{\stackrel{a}{\distr}}
+\newcommand{\diff}{\Delta}
+\newcommand{\fordiff}{\bigtriangleup}
+\newcommand{\fdiff}{\diff_{\rf}}
+\newcommand{\bdiff}{\diff_{\rb}}
+\newcommand{\hb}{\hat{\beta}} % for OLS estimator, \hb
+\newcommand{\hvb}{\hat{\vbeta}} % \hvb
+\newcommand{\hvg}{\hat{\vgamma}} % \hvg
+\newcommand{\olsmat}{(\mX'\mX)^{-1}\mX'\vy} % OLS Mat, \olsmat
+\newcommand{\inv}{^{-1}} %  \inv
+\newcommand{\cX}{\mid \mX} % \cX orthogonal to X
+\newcommand{\norm}[1]{\lVert#1\rVert} % use \norm
+\DeclareMathOperator*{\argmin}{\arg\!\min} %  \argmin
+\newcommand{\indep}{\perp \! \! \! \perp}
+
+% converge 
+\newcommand{\longto}{\longrightarrow}
+\newcommand{\pto}{\stackrel{p}{\longrightarrow}}
+\newcommand{\dto}{\stackrel{d}{\longrightarrow}}
+\newcommand{\wto}{\stackrel{w}{\longrightarrow}}
+
+% MLE
+\newcommand{\Infmat}{\bf\calI}
+\newcommand{\Hesmat}{\bf\calH}
+
+% special vectors and matrices
+\newcommand{\vones}{\boldsymbol \imath}
+\newcommand{\vzeros}{\boldsymbol{0}}
+\newcommand{\mZeros}{\mathbf{O}}
+
+% additional operators
+\newcommand{\EE}[1]{\E\left(#1\right)}
+\newcommand{\VV}[1]{\V\left(#1\right)}
+\newcommand{\CC}[2]{\CCC\left(#1, #2\right)}
+\newcommand{\VVar}[1]{\Var\left(#1\right)}
+\newcommand{\prob}[1]{\Pr\left(#1\right)}
+
+% some colors stolen from Chad Jones
+% note that "color.js" is loaded
+\definecolor{ChadDarkBlue}{rgb}{.1,0,.2} 
+\definecolor{ChadBlue}{rgb}{.1,.1,.5}
+\definecolor{ChadRoyal}{rgb}{.2,.2,.8}  
+\definecolor{ChadGreen}{rgb}{0,.4,0}
+\definecolor{ChadPurple}{rgb}{.5,0,.5}  
+
+\newcommand{\clrdb}[1]{{\color{ChadBlue} #1}} %\clrdb
+\newcommand{\clrb}[1]{{\color{ChadBlue} #1}} %\clrb
+\newcommand{\clrr}[1]{{\color{ChadRoyal} #1}} %\clrr
+\newcommand{\clrg}[1]{{\color{ChadGreen} #1}} %\clrg
+\newcommand{\clrp}[1]{{\color{ChadPurple} #1}} %\clrp
+
+\)
+</div>
+

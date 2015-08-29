@@ -1,0 +1,257 @@
+---
+title: 'Week 6: Weak IV'
+author: "JJ Chen"
+date: "February 20, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    - --latex-engine=xelatex
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    smaller: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=T,message=FALSE)
+library(stargazer)
+library(texreg)
+library(knitr)
+library(AER)
+library(png)
+library(grid)
+```
+
+### Plan
+- Today we'll discuss
+    1. 2SLS finite sample bias
+    2. MC simulation of finite sample bias
+    3. Stata implementations of specification tests 
+- Questions?
+
+# Weak IV and Finite Sample Bias
+## 
+### Recap: What're Weak IVs?
+- Assume we have valid instruments, so 2SLS estimators are consistent
+    - Stata command:
+        - `glo ivmodel y (s = z1 z2) x1 x2`
+        - `ivregress 2sls $ivmodel, r`
+- But our concern is with whether the instruments are weak
+    - That is, whether the true 1st coefficient is close to zero 
+    - Or whether the (conditional) joint correlation of the endog var with instruments are small
+- Recall that there are two simple measures of joint correlation
+    1. $R^2$ from regressing the endog var on Zs and exo ctrl
+    2. $\rvF$-stat from the same regression
+
+### What Happens When Instruments are Weak?
+- Trade-off of Use all the possible instruments (satisfied ER and RC)
+    - Get a more _efficient_ estimator
+    - But lead to larger _finite sample bias_ (@hahn2003weak)
+- Usually we discuss finite sample bias in over-id cases
+    - Over-id: \# instruments (J) > \# endog var (K)
+    - Just-id: \# instruments (J) = \# endog var (K)
+        - In Just-id (one endog) models, the first moment of the IV estimator doesn't exist
+        - The $M$th moment of a 2SLS estimator only exist if $M < J - K + 1$ (@kinal1980existence)
+        
+### The 2SLS Estimator
+- Consider a simple setting: one endog $\vx_{N\times 1}$ and a few instruments $\mZ_{N\times Q}$:
+    - $\vy = \rho \vx + \veta$
+    - $\vx = \mZ \vpi + \vxi$
+- We have the followings:
+    - $\eta_i$ is correlated with $\xi_i$
+    - By construction, $\xi_i$ is orthogonal to the instruments $\vz'_i$
+    - By assumption (ER), $\eta_i$ is orthogonal to the instruments $\vz'_i$
+- The 2SLS estimator is defined as 
+    - $\hat{\rho}^{2SLS} = (\vx'\mP_{\mZ}\vx)\inv\vx'\mP_{\mZ}\vy = \rho + (\vx'\mP_{\mZ}\vx)\inv\vx'\mP_{\mZ}\veta$
+    - $\mP_{\mZ} = \mZ(\mZ'\mZ)\inv\mZ'$ is the projection matrix
+    
+### The Bias of 2SLS
+- Substitute the 1st for $\vx$ in $\vx'\mP_{\mZ}\veta$:
+    - $\hat{\rho}^{2SLS} - \rho = (\vx'\mP_{\mZ}\vx)\inv\vpi'\mZ\eta + (\vx'\mP_{\mZ}\vx)\inv\vxi'\mP_{\mZ}\veta$
+- Take expectation and Bekker approximation:
+    - $\EE{\hat{\rho}^{2SLS} - \rho} \approx (\EE{\vx'\mP_{\mZ}\vx})\inv\EE{\vpi'\mZ\eta} + (\EE{\vx'\mP_{\mZ}\vx})\inv\EE{\vxi'\mP_{\mZ}\veta} = (\EE{\vx'\mP_{\mZ}\vx})\inv\EE{\vxi'\mP_{\mZ}\veta}$
+    - The first term of RHS can be canceled since $\vz_i$ is orthogonal to $\eta_i$: $\EE{\vpi'\mZ\eta} = 0$
+- Substitute the 1st for $\vx$ again in $\vx'\mP_{\mZ}\vx$ gives
+    - $\EE{\hat{\rho}^{2SLS} - \rho} \approx \left[ \EE{\vpi'\mZ'\mZ\vpi} + \EE{\vxi'\mP_{\mZ}\vxi} \right]\inv\EE{\vxi'\mP_{\mZ}\veta}$
+    - Thus we see 2SLS is biased because $\eta_i$ is correlated with $\xi_i$: $\EE{\vxi'\mP_{\mZ}\veta} \neq 0$
+    
+### Tricks for Getting $\EE{\vxi'\mP_{\mZ}\veta} \neq 0$
+- Notice that $\vxi'_i\mP_{\mZ}\veta$ is just a scalar, so that we can apply the trace trick (cyclic permutations and $\tr(\mP_{\mZ}) = \rk(\mP_{\mZ}) = Q$) we learned last semester: 
+$$
+\begin{split}
+\EE{\vxi'\mP_{\mZ}\veta} &= \EE{\tr(\vxi'\mP_{\mZ}\veta)} \\
+                         &= \EE{\tr(\mP_{\mZ}\veta\vxi')} \\
+                         &= \tr(\mP_{\mZ} \EE{\veta\vxi'}) \\
+                         &= \tr(\mP_{\mZ} \sigma^2_{\eta\xi}\mI) \\
+                         &= \sigma^2_{\eta\xi}Q.
+\end{split}
+$$
+- Similarly, $\EE{\vxi'\mP_{\mZ}\vxi} = \sigma^2_{\xi^2}Q$.
+
+
+### Simplify the Bias Term
+- We can further simplify the term and get a more intuitive formula
+$$
+\begin{split}
+\EE{\hat{\rho}^{2SLS} - \rho} &\approx \left[ \EE{\vpi'\mZ'\mZ\vpi} + \EE{\vxi'\mP_{\mZ}\vxi} \right]\inv\EE{\vxi'\mP_{\mZ}\veta} \\
+             &= \sigma^2_{\eta\xi}Q \left[ \EE{\vpi'\mZ'\mZ\vpi} +  \sigma^2_{\xi^2}Q \right]\inv \\
+             &= \frac{\sigma_{\eta\xi}}{\sigma^2_{\xi}} \left[ \frac{\EE{\vpi'\mZ'\mZ\vpi}/Q}{\sigma^2_{\xi}} + 1 \right] \\
+             &= \frac{\sigma_{\eta\xi}}{\sigma^2_{\xi}} \frac{1}{F+1}
+\end{split}
+$$
+- Notice that when the 1st F-stat is small, the bias term gets larger; and if the instruments are too week, the 2SLS bias term gets closer to OLS bias
+
+### Rule of Thumb and LIML
+- Rule of thumb: $\rvF < 10$ indicates weak instruments (@staiger1997instrumental)
+- Alternative estimators that are asym equivalent to 2SLS, but have better finite sample properties: the LIML estimator
+    - LIML has a smaller bias than 2SLS (and GMM)
+    - Assume joint normality of errors in the structural and 1st eqn
+    - Put different weights on instruments
+    - The 1st moment is still not exist for just-id models
+    - Stata command: 
+        - `glo ivmodel y (s = z1 z2) x1 x2`
+        - `ivregress liml $ivmodel, r`
+    
+# MC Simulation of Finite Sample Bias
+##
+### Set up
+- Following our textbook, we'll simulate some data and compare  performance of the OLS estimator, IV estimator (just-id), 2SLS estimator (over-id), and LIML (over-id)
+- Suppose we have the following DGP
+    - $y_i = \beta s_i + \eta_i$
+    - $s_i = \sum\limits_{j=0}^{20}\pi_j z_{ij} + \xi_i$
+    - $\beta = 1, \pi_0 = 0.1, \pi_1 = \cdots = \pi_{20} = 0$
+    - assume $\eta_i$ and $\xi_i$ are jointly normal distributed
+
+### To Get the Idea, Here is One Random Sample
+```{r}
+N <- 10000 # set obs 10000
+ability <- 0.8944272 * rnorm(N)
+eta <- ability + 0.4472136 * rnorm(N)
+xi <- ability + 0.4472136 * rnorm(N)
+z0 <- rnorm(N)
+z1 <- rnorm(N); z2 <- rnorm(N); z3 <- rnorm(N)
+s <- 0.1 * z0 + xi # 1st eqn
+y <- 1 * s + eta # structural eqn
+```
+- `s` is endogenous. Why? What's the OV?
+- `z0` is a valid instrument. Why?
+- `z1`, `z2`, `z3` seems like "fake"" instruments. Why?
+
+### R Code: Regressions
+
+```{r, results='asis'}
+ols <- lm(y ~ s)
+iv <- ivreg(y ~ s | z0)
+kable(texreg(list(ols, iv)))
+```
+
+### 100 Sample
+- Now suppose we draw another 99 sample and estimate
+    1. OLS regression
+    2. 2SLS with one valid instrument (just-id)
+    3. 2SLS with two instruments (only one is valid)
+    4. LIML with two instruments (only one is valid)
+    5. 2SLS with twenty instruments (only one is valid)
+    6. LIML with twenty instruments (only one is valid)
+    7. 2SLS with twenty instruments (all invalid)
+    8. LIML with twenty instruments (all invalid)
+    
+### OLS is biased
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic1.png"))
+```
+
+### IV is consistent (with one valid instrument)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic2.png"))
+```
+
+### 2SLS (two instruments, one valid)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic3.png"))
+```
+
+### LIML (two instruments, one valid)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic4.png"))
+```
+
+### 2SLS (twenty instruments, one valid)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic5.png"))
+```
+
+### LIML (twenty instruments, one valid)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic6.png"))
+```
+
+### 2SLS (twenty instruments, all invalid)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic7.png"))
+```
+
+### LIML (twenty instruments, all invalid)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic8.png"))
+```
+
+### First 4 Cases in one graph
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic9.png"))
+```
+
+### 2SLS and LIML with 20 instruments (One Valid Instruments)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic10.png"))
+```
+
+### 2SLS and LIML with 20 instruments (all invalid)
+```{r fig.width=6, fig.height=4,  echo=FALSE}
+grid.raster(readPNG("w6/w6pic11.png"))
+```
+
+# Specification Tests
+##
+### DWH test of endogeneity
+- Intuition: If there's little difference between OLS and IV, then there is no need to instrument.
+- Null: Regressors of interest are exogenous (In class, the null is stated as "$\hat{\rho}_I$ and $\hat{\rho}_O$ are both consistent, but $\hat{\rho}_O$ is more efficient".)
+
+### Tests of over-id restrictions
+- Or Hansen's test, Sargan's test, Hansen-Sargen's test
+- Intuition: If multiple instrument, we can construct separate IV estimates of the same parameter. If these estimates are “too different” from one another, then we can reject some part of the model.
+- Null: All instruments are valid; formally, $\rvH_0: \EE{\rvZ_i\eta_i}=0$. Rejecting the null suggests that at least one of the instrument is not satisfied the ER.
+
+### Control Function and OV Test
+- Intuition: If there are no omitted variable, predicted 1st error ($\hat{xi}_i$) should have a zero coefficient in the regression of $\rY_i$ on $\rS_i$ and $\hat{xi}_i$
+- Null: Regressor of interest are endogenous (see handout)
+
+### Stata Commands
+- Stata offers three post-estimation commands
+    - `glo ivmodel y (s = z1 z2) x1 x2`
+    - `ivregress 2sls $ivmodel, r`
+    - `estat firststage`
+    - `estat endog s`
+    - `estat overid`
+- Example: AK91, see handout 
+
+### Discussion
+- Here is a midterm question from last year:
+- Suppose you are interested in estimating the regression $\rY_i = \alpha + \beta \rX_i + e_i$, but you are worried that $\rX_i$ is endogenous. You have two instruments for $\rX_i$: $\rZ_{1i}$ and $\rZ_{0i}$.
+    - You are confident that the ER holds for $\rZ_{1i}$ but are worried that it's a weak instrument.
+    - You are less confident the exclusion restriction holds for $\rZ_{2i}$
+- Questions:
+    1. How would you estimate $\beta$? (possible ivmodels?)
+    2. Explain any potential advantages or limitations of your choice. 
+
+### References {.allowframebreaks}

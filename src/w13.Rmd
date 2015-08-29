@@ -1,0 +1,178 @@
+---
+title: 'Week 13: More on DID'
+author: "JJ Chen"
+date: "April 10, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    css: style.css
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    includes:
+      in_header: macro.html
+    incremental: no
+    keep_md: no
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    smaller: no
+    transition: default
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, 
+                      comment=NA,
+                      warning=FALSE,
+                      message=FALSE)
+library(png)
+library(grid)
+```
+
+## Today's Plan
+
+- Parallel trend and parallel growth assumptions
+    - @mora2014treatment
+
+
+# ID Assumptions
+## Motivation
+
+- The ID assumption for DID design is the common trend
+    - Parallel path for outcome levels in post-treatment periods
+- In many DID papers, authors include group-specific linear time trends and call it 
+    - a robustness check, or
+    - a relaxation of the parallel trend assumption
+- But once we include group-specific time trends, is the ID assumption still the common trend?
+- Today we try to be more specific about the ID assumption under group-specific time trends 
+
+## Motivation: Why Group-Specific Trends
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w13/pic1.png"))
+```
+
+## Review: Common Trend Assumption
+- Two groups of units: $\rvar{T}_i = 0$, $\rvar{T}_i = 1$
+- Two periods: $\rvar{P}_t = 0$, $\rvar{P}_t = 1$
+- Treatment group receives treatment in post period: $\rvar{TP}_{it} = \rvar{T}_i \times \rvar{P}_t$
+- Two potential outcomes: $\rY_{0it}$, $\rY_{1it}$
+    - Observed outcomes: $\rY_{it} = \rY_{0it} \times (1 - \rvar{TP}_{it}) + \rY_{1it} \times \rvar{TP}_{it}$
+- ATET: $\delta^{ATET} = \E( \rY_{1it} - \rY_{0it} \mid \rvar{TP}_{it} = 1 )$
+    - $\implies \delta^{ATET} = \E( \rY_{1i1} - \rY_{0i1} \mid \rvar{T} = 1)$
+    
+## Regressions Gives Conditional Mean Comparison
+- $\rY_{it} = \alpha + \beta \rvar{T}_i + \gamma \rvar{P}_t + \delta \rvar{TP}_{it} + e_{it}$
+    - $\E(\rY_{i1}\mid\rT = 1) = \alpha + \beta + \gamma + \delta$
+    - $\E(\rY_{i0}\mid\rT = 1) = \alpha + \beta + \delta$
+    - $\E(\rY_{i1}\mid\rT = 0) = \alpha + \gamma$
+    - $\E(\rY_{i0}\mid\rT = 0) = \alpha$
+- $\delta^{DID} = \E(\rY_{i1} - \rY_{i0} \mid \rT = 1) - \E(\rY_{i1} - \rY_{i0} \mid \rT = 0)$
+    
+## Potential Outcome DID
+- ATET: $\delta^{ATET} = \E( \rY_{1i1} - \rY_{0i1} \mid \rvar{T} = 1)$
+- DID gives ATET?
+$$
+\begin{split}
+\delta^{DID} =& \E(\rY_{i1} - \rY_{i0} \mid \rT = 1) - \E(\rY_{i1} - \rY_{i0} \mid \rT = 0) \\
+ =& \E(\rY_{1i1} - \clrg{\rY_{0i0}} \mid \rT = 1) - \E(\rY_{0i1} - \rY_{0i0} \mid \rT = 0) \\
+ =& \E(\rY_{1i1} - \rY_{0i0} \mid \rT = 1) - \clrg{ \E(\rY_{0i1} - \rY_{0i0} \mid \rT = 1) } \\
+ =& \E( \rY_{1i1} - \rY_{0i1} \mid \rvar{T} = 1) \\
+ =& \delta^{ATET}
+\end{split}
+$$
+- ID assumption for ATET: $\clrg{ \E(\rY_{0i1} - \rY_{0i0} \mid \rT = 1) = \E(\rY_{0i1} - \rY_{0i0} \mid \rT = 0) }$
+    - Or: $\rY_{0i1} - \rY_{0i0} \indep \rT$
+    - Can be extended to selection-on-observable: $\rY_{0i1} - \rY_{0i0} \indep \rT \mid \rvX$
+    
+## Multiple Periods
+
+- Now suppose we have three periods: $t = 1, 2, 3$
+    - Assume two pre-pretreatment periods and one post-treatment period
+    - $\rP_{t} = 1$ if $t = 3$; $\rP_t = 0$ if $t = 1, 2$
+- ATET: $\delta^{ATET} = \E( \rY_{1i3} - \rY_{0i3} \mid \rvar{TP}_{it} = 1 )$
+- Regression that allows group-specific linear time trend
+    - $\rY_{it} = \alpha  + \beta \rvar{T}_i + \gamma \rvar{P}_t + \delta \rvar{TP}_{it} + \theta (\rT_i \times t) + e_{it}$
+    - A simple version of eqn (5.2.7) in MHE
+- What are the conditional means?
+
+## Multiple Periods
+- $\rY_{it} = \alpha  + \beta \rvar{T}_i + \gamma \rvar{P}_t + \delta \rvar{TP}_{it} + \theta (\rT_i \times t) + e_{it}$
+    - $\E(\rY_{i3}\mid\rT=1) = \alpha + \beta + \gamma + \delta + 3\theta$
+    - $\E(\rY_{i2}\mid\rT=1) = \alpha + \beta + 2\theta$
+    - $\E(\rY_{i1}\mid\rT=1) = \alpha + \beta + \theta$
+    - $\E(\rY_{i3}\mid\rT=0) = \alpha + \gamma$
+    - $\E(\rY_{i2}\mid\rT=0) = \alpha$
+    - $\E(\rY_{i1}\mid\rT=0) = \alpha$
+- $$
+\begin{split}
+\delta^{DID} =& \EE{ (\rY_{i3} - \rY_{i2}) - (\rY_{i2} - \rY_{i1}) \mid \rT = 1} - \\
+              & \EE{ (\rY_{i3} - \rY_{i2}) - (\rY_{i2} - \rY_{i1}) \mid \rT = 0} \\
+             =& \E(\Delta \rY_{i3} - \Delta \rY_{i2} \mid \rT = 1) - \E(\Delta \rY_{i3} - \Delta \rY_{i2} \mid \rT = 0)
+\end{split}       
+$$    
+
+## ID Assumption: Pallele Growth
+- ATET: $\delta^{ATET} = \E( \rY_{1i3} - \rY_{0i3} \mid \rvar{T}_{it} = 1 )$
+- $$
+\begin{split}
+\delta^{DID} =& \E(\Delta \rY_{i3} - \Delta \rY_{i2} \mid \rT = 1) - \E(\Delta \rY_{i3} - \Delta \rY_{i2} \mid \rT = 0) \\
+             =& \E(\Delta \rY_{1i3} - \Delta \rY_{0i2} \mid \rT = 1) - \E(\Delta \rY_{0i3} - \Delta \rY_{0i2} \mid \rT = 0) \\
+             =& \E(\Delta \rY_{1i3} - \Delta \rY_{0i2} \mid \rT = 1) - \clrr{\E(\Delta \rY_{0i3} - \Delta \rY_{0i2} \mid \rT = 1) } \\
+             =& \E(\Delta \rY_{1i3} - \Delta \rY_{0i3} \mid \rT = 1) \\
+             =& \EE{ (\rY_{1i3} - \rY_{0i2}) - (\rY_{0i3} - \rY_{0i2}) \mid \rT = 1} \\
+             =& \E(\rY_{1i3} - \rY_{0i3} \mid \rT = 1) = \delta^{ATET}
+\end{split}       
+$$
+- ID Assumption: $\clrr{\E(\Delta \rY_{0i3} - \Delta \rY_{0i2} \mid \rT = 1) } = \E(\Delta \rY_{0i3} - \Delta \rY_{0i2} \mid \rT = 0)$
+    - Compare to parallel trend $\clrr{\E(\rY_{0i3} - \rY_{0i2} \mid \rT = 1) } = \E(\rY_{0i3} - \rY_{0i2} \mid \rT = 0)$
+    
+## Parellel Trend and Parellel Growth is Non-nested
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w13/pic2.png"))
+```
+
+## Parellel Trend and Parellel Growth
+- @mora2014treatment formalize the above ideas and characterize a family of identification assumptions: _Parallel-(q)_
+    - Parallel trend:_Parallel-(1)_; Parallel growth: _Parallel-(2)_
+- Notations:
+    - Let $t^*$ be the last pre-treatment period. Assume the treatment finishes before the first post-treatment period, $t^* + 1$
+    - Denote the $s$-period difference operator as $\Delta_s \equiv (1 - L^s)$, and the $(q-1)$-th difference operator as $\Delta^{q-1} \equiv (1-L)^{q-1}$
+- _Parallel-(q)_ is defined for a given pre-treatment period $q \leq t^*$, and for a given post-treatment periods $s, 1 \leq s \leq J - t^*$, $\E(\Delta_s\Delta^{q-1} \rY^0_{i,t^*+s} \mid \rvX_i, \rD_i = 1) = \E(\Delta_s\Delta^{q-1} \rY^0_{i,t^*+s} \mid \rvX_i, \rD_i = 0)$
+    - The number of pre-treatment periods sets the max. number of assumptions that can be assumed
+    
+## More on DID Regressions
+- Extensions of Standard Models when there are multiple periods:
+    - $\rY_{it} = \alpha + \beta \rT_i +  \sum\limits_{\tau = 2}^J \gamma_{\tau} \rI^{\tau}_t + \delta \rvar{TP}_{it} + e_{it}$
+    - $\rY_{it} = \alpha + \beta \rT_i +  \sum\limits_{\tau = 2}^J \gamma_{\tau} \rI^{\tau}_t + \delta \rvar{TP}_{it} + \theta (\rvar{TP}_{it} \times t) + e_{it}$
+    - $\rY_{it} = \alpha + \beta \rT_i +  \sum\limits_{\tau = 2}^J \gamma_{\tau} \rI^{\tau}_t + \sum\limits_{s = 1}^{J-t^*} \delta_{s} (\rvar{TP}_{it} \times \rI^{t^*+s}_t) + e_{it}$
+- For all the three regressions, pre-treatment dynamics are identical for controls and treated
+    - In the presence of group-specific trends, these models are inappropriate
+    
+## More on DID Regressions
+- Incorporating group-specific time trends:
+    - $\rY_{it} = \alpha + \beta \rT_i + \sum\limits_{\tau = 2}^J \gamma_{\tau} \rI^{\tau}_t + \sum\limits_{s = 1}^{J-t^*} \delta_{s} (\rvar{T}_i \times \rI^{t^*+s}_t) + e_{it}$
+    - $\rY_{it} = \alpha + \beta \rT_i + \sum\limits_{\tau = 2}^J \gamma_{\tau} \rI^{\tau}_t + \sum\limits_{s = 1}^{J-t^*} \delta_{s} (\rvar{T}_i \times \rI^{t^*+s}_t) + \sum\limits_{r=1}^R \delta_r (\rvar{T}_i \times t^r) + e_{it}$
+- Fully flexible model (multiple periods, two groups):
+    - $\rY_{it} = \alpha + \beta \rT_i + \sum\limits_{\tau = 2}^J \gamma_{\tau} \rI^{\tau}_t + \sum\limits_{\tau = 2}^J \delta_{\tau} (\rT_i \times \rI^{\tau}_t) + e_{it}$
+    
+## A Brief Review of Current Practive
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w13/pic3.png"))
+```
+
+## A Brief Review of Current Practive
+```{r fig.width=6, fig.height=4, echo=FALSE}
+grid.raster(readPNG("w13/pic4.png"))
+```
+
+## References {.allowframebreaks}

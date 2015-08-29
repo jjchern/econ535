@@ -1,0 +1,203 @@
+---
+title: 'Week 7: IV with Heterogeneous Effect'
+author: "JJ Chen"
+date: "February 27, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    smaller: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+### Review Plan:
+
+- This week we moved away from traditional IV world and enter the LATE framework
+    - It adopts more elaborate notations to describe most of the things we already know
+    - Thus it's not about how we should do, but how we should think about IV estimates
+    
+### Review Plan: 
+- Today:
+    1. The LATE Theorem
+    2. Implications of the LATE Theorem in RCTS
+        - The Bloom Result: A solution to the compliance problem
+        - Two examples: JTPA training and MDVE (since we didn't cover in class)
+    3. Counting and characterizing Compliers
+- Next week might be further generalizations of LATE: multiple instruments, multi-valued instruments, multi-valued endogenous variable (The ACR Theorem), covariates with heterogeneous effect, Kappa weighting and nonlinear models... Oh, and the midterm
+
+# The LATE Theorem
+## 
+### Motivation
+- Scenario: You find two valid instruments! But they yields different estimates...
+    - Traditional IV says there are something wrong with one of your instruments (Over-id; weak IV)
+- An alternative explanation: heterogeneous treatment effect
+    - Example: the effect of child caring on female labor supply
+        - Two estimates from two (arguably) valid instruments (Table 4.1.4)
+- Big picture:
+    - Each valid instrument generate its own experiment
+    - Internal validity vs. external validity
+    
+### The LATE Language: New Notations
+- Single-indexed potential treatment: $\rD_{1i}$, $\rD_{0i}$
+    - Observed treatment: $\rD_i = \rD_{1i} + (\rD_{1i} - \rD_{0i}) \rZ_i$
+    - What is the average causal impact of $\rZ_i$ on $\rD_i$?
+- Double-indexed potential outcome: $\rY_i(d, z)$
+    - $\rZ_i$ might have an impact on $\rY_i$... We are going to rule this out, there will just be a IV chain, but no direct impact
+    - What is the average causal impact of $\rZ_i$ on $\rY_i$?
+
+    
+### The LATE Assumptions: Independence and Exclusion
+- The LATE framework allows us to distinguish between Independence and Exclusion
+    - The fact that a instrument is random doesn't guarantee ER
+1. Independence: The instrument generates an experiment
+$$
+\left[ \{ \rY_i(d,z); \forall d, z \}, \rD_{1i}, \rD_{0i} \right] \indep \rZ_i
+$$
+    - What can we get?
+2. Exclusion Restriction: The instruments affects $\rY_i$ only via $\rD_i$.
+    - $\rY_i(1,1) = \rY_i(1,0) \equiv \rY_{1i}$
+    - $\rY_i(0,1) = \rY_i(0,0) \equiv \rY_{0i}$
+    - ER allows us to collapse the double-indexed into single-indexed
+    - How would you write the relationship between the observed outcome and the potential outcome?
+
+### The LATE Assumptions: First Stage and Monotonicity
+3. First Stage: $\EE{\rD_{1i} - \rD_{0i}} \neq 0$
+4. Monotonicity: $\rD_{1i} > \rD_{0i}$ for everyone (or vice verse)
+    - Monotonicity implies that $\EE{\rD_{1i} - \rD_{0i}} = \prob{\rD_{1i}>\rD_{0i}}$
+    - It gives us a good feature to exploit: the difference in two potential treatment status is the 1st
+    - The 1st is the prob that $\rD_{1i}$ is greater than $\rD_{0i}$
+    
+### The LATE Theorem
+- Given the four LATE Assumptions,
+$$
+\frac{ \EE{\rY_i\mid\rZ_i=1} - \EE{\rY_i\mid\rZ_i = 0} }
+     { \EE{\rD_i\mid\rZ_i=1} - \EE{\rD_i\mid\rZ_i = 0} } = \EE{\rY_{1i} - \rY_{0i} \mid \rD_{1i} > \rD_{0i}}
+$$
+- The LATE Theorem tells us how to think about the Wald estimator: It's the ATE on the sub-population that has $\rD_{1i} > \rD_{0i}$
+
+### Name the Sub-population
+- The LATE assumptions "partition the world":
+    - Compliers: $\rD_{1i} > \rD_{0i}$
+    - Always-takers: $\rD_{1i} = \rD_{0i} = 1$
+    - Never-takers: $\rD_{1i} = \rD_{0i} = 0$
+    - Monotoniticy assumes away Defiers
+- IV tells us nothing about Always-takers and Never-takers, just like an FE estimate only identify effects for people who have change
+    - If an instrument induces an change in your behavior, you're in the conditional set for the LATE
+    
+### LATE and ATET: Who got treated?
+- Note that people who got treated consists of two groups: Always-takes and compliers who are assigned with $\rZ_i = 1$
+- Can be seen from the notation:
+$$
+\begin{split}
+         & \rD_i = \rD_{0i} + (\rD_{1i} - \rD_{0i}) \rZ_i \\
+\implies & [\rD_i = 1] = [\rD_{1i} =\rD_{0i}=1] \cup
+                       [(\rD_{1i} - \rD_{0i} = 1) \cap (\rZ_i = 1)]
+\end{split}
+$$
+- The compliers are a proper subset of __the treated__
+- Thus we know that ATET is a weighted average of effects on always-takers and compliers
+
+# The Bloom Result
+##
+### Motivation: LATE and ATET
+- Unlike matching, IV can not be used to identify ATET, it only gives LATE
+- In the heterogeneous world, when will LATE becomes ATET?
+    - When all compliers are the treated (or when there is no always taker).
+    - In some scenario, there is no always-takers (or no never-takers).
+- The most important scenario is RCTs, in which the control group has no access to the intervention.
+    - The group of offered treatment may or may not take the treatment, but the control group has no access to the treatment
+    - A one-sided IV scenario, or a Bloom scenario
+
+### The Bloom Result: IV Solves the Compliance Problem
+- A one-sided IV scenario implies that there is no always-takers
+    - No controls are treated (Assuming the controls don't have access), $\EE{\rD_i\mid\rZ_i = 0} = 0$
+- Recall that _{Treated} = {Alwayer-takers} + {Compliers}_
+    - So "treated" IS "compliers" in RCTs
+- LATE = ATET
+- The LATE Theorem implies The Bloom Result:
+$$
+\begin{split}
+\frac{ \EE{\rY_i\mid\rZ_i=1} - \EE{\rY_i\mid\rZ_i = 0} }
+     { \EE{\rD_i\mid\rZ_i=1} } &=
+\frac{\text{ITT}}{\text{Compliance Rate}} \\
+&= \EE{\rY_{1i} - \rY_{0i} \mid \rD_i = 1}
+\end{split}
+$$
+
+### Examples: JTPA and MDVE
+1. JTPA
+    - Table 4.4.1
+    - The 1st is approximately the compliance rate. How come?
+    - OLS is bias (why?); ITT is diluted (Why?)
+2. MDVE
+    - Research Question: What is the best response to domestic violence?
+    - Table 1 (Summary Stat) and Table 2 (IV Estimates) from @angrist2006instrumental
+    - LATE helps a lot of experiments: changing subjects' behavior might be problematic (polices should decide what to do for a given case), but LATE says only changing the likelihood of doing something is enough
+
+# Counting and Characterizing Compliers
+##
+### Motivation
+- Each instrument generates its own experiment for it's compliers
+- Knowing more about the compliers helps to reconcile different IV estimates
+    - Also homogeneous vs. heterogeneous effect, interval validity vs. external validity
+- How to use the information from counting and characterizing?
+    1. Similar characteristics, different IV estimates: Implications?
+    2. Different characteristics, similar IV estimates: Implications?
+    3. Extrapolation and external validity for other sample
+    
+### Counting
+- Table 4.4.2
+- Given monotonicity, 1st are
+$$
+\prob{\rD_{1i} > \rD_{0i}}
+$$
+- Among the treated, we have
+$$
+\begin{split}
+&  \prob{\rD_{1i} > \rD_{0i} \mid \rD_i =1} \\
+&= \frac{\prob{\rD_i=1\mid\rD_{1i} > \rD_{0i}} \prob{\rD_{1i} > \rD_{0i}}}
+        {\prob{\rD_i = 1}} \\
+&= \frac{\prob{\rD_i=1\mid\rD_{1i} > \rD_{0i}} 
+         \left[ \EE{\rD_i\mid\rZ_i=1} - \EE{\rD_i\mid\rZ_i=0} \right]
+         }
+        {\prob{\rD_i = 1}} \\
+&= \frac{\prob{\rZ_i = 1} 
+         \left[ \EE{\rD_i\mid\rZ_i=1} - \EE{\rD_i\mid\rZ_i=0} \right]
+         }
+        {\prob{\rD_i = 1}},
+\end{split}
+$$
+where the first equality use the definition of conditional probability.
+
+
+### Characterizing
+- Table 4.4.3
+- Are the compliers more likely to be high school graduates?
+$$
+\begin{split}
+& \frac{\prob{\rX_{1i} = 1\mid\rD_{1i} > \rD_{0i}}}
+     {\prob{\rX_{1i} = 1}} \\
+=& \frac{ \prob{\rX_{1i} = 1 \cap (\rD_{1i} > \rD_{0i})} }{\prob{\rD_{1i} > \rD_{0i}} \prob{\rX_{1i} = 1}}      \\   
+=& \frac{\prob{\rD_{1i} - \rD_{0i} \mid\rX_{1i}=1}}
+     {\prob{\rD_{1i} > \rD_{0i}}} \\
+=& \frac{\EE{\rD_i\mid\rZ_i=1, \rX_{1i}=1} - \EE{\rD_i\mid\rZ_i=0, \rX_{0i} = 1}}
+  {\EE{\rD_i\mid\rZ_i=1} - \EE{\rD_i\mid\rZ_i=0}}
+\end{split} 
+$$
+
+### References {.allowframebreaks}

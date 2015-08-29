@@ -1,0 +1,199 @@
+---
+title: 'Week 16: Final Exam Review and Reading/Evaluating Design-based Papers in the Future'
+author: "JJ Chen"
+date: "May 1, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    smaller: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, 
+                      comment=NA,
+                      warning=FALSE,
+                      message=FALSE)
+library(png)
+library(grid)
+```
+
+### Today's Plan
+- Practice final exam questions
+- Reading/Evaluating design-based papers in the future
+
+# Final Review
+##
+### Preparation
+- Most of the time: 
+    - Some kinds of regressions or conditional mean comparisons + ID assumptions $\rightsquigarrow$ causal parameter of interest
+- Be familiar with common ID strategies
+    - *Describe ID Asm in words for: thought experiment, OLS, Matching, IV, RD, DID, and all their friends
+    - **Think about implications/tests of ID Asm: if the ID Asm is correct, then we should be above to observe XYZ
+    - **Write down the exact math/stat definitions for ID Asm
+- Know how to write down a regression
+    - *Try to be familiar with all the regressions in MHE; __OVB and Reg Anatomy__
+    - ***Read abstracts of assigned papers, once you understand the source of ID, try to write down a regression and compare
+    
+### Practice Final Exam Questions I
+_T or F: Including FE in a regression always reduces an OVB because FE control for unobserved heterogeneity._
+
+- Consider 
+$$
+\rY_{it} = \alpha + \rho \rD_{it} + \beta_i \rvar{OV1}_{i} + \gamma_t \rvar{OV2}_t + \delta_{it} \rvar{OV3}_{it} + \eta_{it} 
+$$
+- How does individual FE controls for \rvar{OV1}? What about \rvar{OV2}?
+    - $\rvar{OV1}$ doesn't change over time, so any change in $\rY$ over time cannot be caused by $\rvar{OV1}$
+- When we have a panel or similar data structure, the source of variations to identify $\rho$ can be very different
+    - within variations: we observe a change in $\rY$ because there are changes in $\rD$ within "units"
+    - between variations: we observe a change in $\rY$ because there are changes in $\rD$ between "units"
+
+### Practice Final Exam Questions II
+_Consider a regression $\rY_{st} = \lambda_s + \theta_t + \rho \rD_{st} + \rvX_{st}'\vgamma + e_{st}$. What ID Asm do you have to make to interpret the OLS estimate of $\rho$ as the cause effect?_
+
+- In words? In math/stat:
+    - $\{ \rY_{0st}, \rY_{1st} \} \indep \rD_{st} \mid \lambda_s, \theta_t, \rvX_{st}$?
+    - $\rY_{0st} \indep \rD_{st} \mid \lambda_s, \theta_t, \rvX_{st}$?
+    - $\rY_{0st} - \E(\rY_{0st}) \indep \rD_{st} \mid \lambda_s, \theta_t, \rvX_{st}$?
+    - $\E(e_{0st} \mid \rD_i, \lambda_s, \theta_t, \rvX_{st}) = \E(e_{0st} \mid \lambda_s, \theta_t, \rvX_{st})$?
+    - $\E(\rY_{0it} - \bar{\rY}_{0i} \mid \rD_{i} = 1, \theta_t, \rvX_{st}) = \E(\rY_{0it} - \bar{\rY}_{0i} \mid \rD_i = 0, \theta_t, \rvX_{st})$?
+    - $\E(e_{st} \mid \rD_i, \lambda_s, \theta_t, \rvX_{st}) = 0$?
+    - $\E(e_{st}\rD_i \mid \lambda_s, \theta_t, \rvX_{st}) = 0)$?
+    - $\Cov(\rD_{st}^*, e_{st}) = 0$, where $\rD_{st}^*$ is residuals from a regression of $\rD_{st}$ on $\lambda_s, \theta_t$ and $\rvX_{st}$?
+    
+### Practical Final Exam Question III
+_Write down a regression for a DDD type of design: age group 22-24 ($\rA_a = 0$) is not affected by the MLGA, while age group 18-22 ($\rA_a = 1$) is affected._
+
+- How about 
+    - $\rY_{ast} = \lambda_s + \theta_t + \rho \rD_{st} + \beta_0 \rA_a + \beta_1 (\rA_a * \lambda_s) + \beta_2 (\rA_a * \theta_t) + \beta_3(\rA_a * \rD_{st}) + e_{ast}$?
+    - $\rY_{ast} = \xi_{st} + \lambda_{as} + \theta_{at} + \pi (\rA_a * \rD_{st}) + e_{ast}$
+- How to think about complicated regression in general? Simplify variables as dummies and then write down the conditional expectations for different groups.
+    - In this case, assume two age groups, two states, and two years.
+    - For different age groups, you can perform a DID, what's left is a state-specific time effects
+    
+### Follow-up Practical Questions
+- How to run multiple-FE model in Stata or R: 
+    - If there is only one high-dimensional FE, absorb it using `areg, a(hi-group)` or `xtreg, fe` and then use LSDV, see @gormley2014common;
+        - `areg y x i.group#i.year, a(hi-group)`
+        - `xtset hi-group; xtreg y x i.group#i.year, fe`
+    - LSDV in R: `lm(y ~ d + factor(group))`
+    - Linear Models for Panel Data in R: `library(plm)`
+- If there are several high-dimensional FEs, 
+    - use `ssc install felsdvreg` or `ssc install reghdfe` in Stata, 
+    - or use `install.packages("lfe")` in R
+    
+### Practical Exam Question IV I
+_Interpreting multivariate OLS and quantile regression estimates (treatment group is full insruance, control group pays 20% of their medical expenses):_
+ 
+ OLS    10^th^   25^th^   50^th^   75^th^   90^th^
+------ -------- -------- -------- -------- --------
+0.30   0.00     0.40     0.35     0.20     0.03
+(0.04) (0.05)   (0.04)   (0.04)   (0.04)   (0.05)
+
+### Practical Exam Question IV II
+
+- The OLS estimate tells that, _conditional on $\rvX_i$_, being in the treatment group raises the mean of log of medical expenses by 0.3, or about 30 percent.
+- The quantile regression estimates indicate how various quantiles of the distribution of medical expenditures are affected by the treatment:
+    - The 10^th^ percentile of the treatment and control distribution are equal to one another, _conditional on $\rvX_i$._
+    - The 25^th^ percentile of the treatment distribution of log medical expenses is 0.4 larger than the 25^th^ percentile of the distribution among the controls, conditional on $\rvX_i$.
+- Aside: Are these price elasticities?
+    - How should we connect experimental estimates with theoretical construct?
+    
+### Practical Final Exam Question V
+_What's the ID Asm for a FD/FE model: 
+$$\rY_{it} = \alpha + \lambda_i + \beta \rX_{it} + e_{it},$$ or 
+$$\rY_{i5} - \rY_{i4} = \diff \rY_{i} = \beta \diff \rX_i + \diff e_i,$$ where $\rY_{i5}$ is test score in 5^th^ grade, and $\rX_{it}$ is teacher experience._
+
+- Again? 
+- How about the lagged model:
+$$
+\rY_{it} = \alpha + \gamma \rY_{i,t-1} + \lambda_i + \beta \rX_{it} + e_{it},
+$$ or the gain model:
+$$
+\rY_{it} - \rY_{i,t-1} = \alpha + \lambda_i + \beta \rX_{it} + e_{it},
+$$
+
+### Practical Final Exam Question VI
+_Suppose that schools assign children who have unusually low test socres in one year to classroom in the following year that have more experienced teachers. Will this lead the OLS estimate of $\beta$ in the model of $\diff \rY_{it}$ to be upward biased, downward biased, or unbiased?_
+
+- Apply the OVB formula:
+$$
+\frac{\CCC(\diff \rY_{it}, \diff \rX_{it})}{\V(\diff\rX_{it})} = \beta + \frac{\CCC(\diff e_{it}, \diff\rX_{it})}{\V(\diff \rX_{it})} 
+$$
+- What's the sign of $\CCC(\diff e_{it}, \diff\rX_{it})$?
+    - $\CCC(\diff e_{it}, \diff\rX_{it}) = \CCC(e_{i5} - e_{i4}, \rX_{i5} - \rX_{i4}) = \CCC(e_{i5},\rX_{i5}) - \CCC(e_{i5}, \rX_{i4}) -  \CCC(e_{i4}, \rX_{i5}) +  \CCC(e_{i4}, \rX_{i4}) = -\CCC(e_{i4}, \rX_{i5}) > 0$
+    
+### Practical Final Exam Question VII I
+_Consider estimating the effect of school funding $\rR_s$ on student achievement $\rY_{is}$: $\rY_{is} = \alpha + \rho \rR_s + \rvX_{is}'\vbeta + \rvZ_{s}'\vgamma + e_{is}$. $\rR_{s}$ is likely to be biased, why?_
+
+_Suppose that beginning in 2010 a particular state gave money to local school districts using the following formula: If the fraction on students in 2009 who lived below the poverty level was greater than 35%, then the district would receive \$2000 per student per year. If the fraction was less than 35%, then the district would receive $1000 per student per year. How would you use the new funding formula to estimate $\rho$?_
+
+### Practical Final Exam Question VII II
+- Basically we have a fuzzy RD design. So 
+    - What's the running variable?
+    - How would you define the dummy variable for the cutoff?
+    - How would you model the relationship between the outcome variable and the running variable?
+    - What's the ID Asm?
+    - What're the implications of the ID Asm, or how can we test the validity of the Asm?
+    - How to interpret the estimate of $\rho$?
+- Is it also possible to use a fuzzy DID design?
+    
+# Reading and Evaluating Deisgn-based Papers
+##
+### Reasons and Disclaimer
+- Learning _latent_ features of some texts is hard: many possible counterfactuals 
+- Perhaps it would be a good idea to develop a small routine/system/algorithm for reading
+    - For those of you who plan to take the four applied micro fields, 75% of the second year assigned papers (5 to 15 every week) would be design-based; much like papers in Econ 535
+    - Most of them are produced used "technologies" we learn this semester
+- Disclaimer: I still don't know how to read _effectively_
+- Personal experience: the most effective learning strategy is doing research; teaching things you don't know is also quite effective; taking class and reading passively are only as useful as watching TV
+
+### Things people do 
+- Answer a lists of question after reading
+    - Example: See Robin Lee's [IO Syllabus](http://www.people.fas.harvard.edu/~robinlee/teaching/io/stern/2013_Syllabus.pdf) 
+- Compile literature notes: summary, intuition, discussion, etc.
+    - [Example](http://scholar.harvard.edu/plagborg/pages/literature-notes)
+- Write haiku (for papers you read or write)
+    - [Example](https://sites.google.com/site/heskibarisaac/home/haikus)
+- Organize data sources and variables
+    - Example: [DevEconData.blogspot.com](http://devecondata.blogspot.com/)
+- Make notes while reading and then turn into your own sentences or paragraphs
+    - Example: [Professor McCloskey's Little Lessons in Historigraphic Scholarship](http://www.deirdremccloskey.com/docs/docs_teaching/lessonsScholarship.doc)
+    
+### Split, Process, and Summarize
+- Every paper contains a great amount of information
+    - To extract these information in one round of reading is always daunting, at least for me
+    - Sometimes it's easier to read one papers in many rounds, with different focus in each phrase
+    - For every round of reading, process and summarize
+- One advantage of this approach is that it makes the unit of information smaller, so that it can be substituted easily. 
+    - [Ref](http://www.sigcomm.org/sites/default/files/ccr/papers/2007/July/1273445-1273458.pdf)
+    
+### Beware of Initiative Bias
+- According to @NBERt0329, researcher's problem is 
+$$
+\max_{E} \theta S(f(E) + R) - E,
+$$
+where $\theta$ is the exogenous importance of the research question, $S(.)$ reflects the extent the public attributes importance to the result, $R$ is the real significance of the research, which is a r.v. follows some distribution $g(R)$, $E$ is the non-negative effort of the researcher, and $f(.)$ is the production function
+    - The FOC is $\theta * S'(f(E) + R)f'(E) = 1$.
+- There are many interesting predictions from his model, but his first point is that _"we should accept researcher initiative as being the norm, and not the exception"._
+
+### Some Suggestions I Heard and I Wish I can Always Follow
+- Compile a list of questions and force yourself to write down answers in full sentences after reading a paper
+    - For example, what's the source of variations they use; what's the ID Asm; what exactly is the comparison groups; is their regression the one they want; what restrictions does their regression imposes...
+- Pick two papers every week and read it word-by-word, figure out everything (narratives, equations, summary statistics, estimates) you're not comfortable with 
+    - Ask your classmates, TAs, and Professors
+- My biggest lesson from this year's TA experience: I am constantly surprised by my own ignorance.
+    
+### References

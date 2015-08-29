@@ -1,0 +1,79 @@
+/*================================
+Last modified: March 24, 2015
+==================================*/
+
+
+/* Style lists */
+
+ul {
+    list-style-type: disc;
+    font-family: Georgia;
+}
+
+ol {
+    list-style-type: decimal
+    font-family: Georgia;
+}
+
+/* Figure counter */
+
+body{
+    counter-reset:table figure;
+}
+
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+caption::before{
+counter-increment: table;
+content: "Table " counter(table) ": ";
+}
+
+.caption::before{
+counter-increment: figure;
+content: "Figure " counter(figure) ": ";
+}
+
+/* Style headlines */
+
+h1, h2, h3, h4, h5 { font-family: Georgia;
+                     font-weight: bold;
+                     border-bottom: 1px dotted black;
+}
+
+h1 {
+        font-size: 130%;
+}
+
+h2 { 
+ font-size: 130%; 
+ font-weight: bold;
+ border-bottom: 1px dotted black;
+ font-family: Georgia;
+}
+
+h3 {
+        font-size: 95%;
+}
+
+h4 {
+        font-size: 90%;
+        font-style: italic;
+}
+
+h5 {
+        font-size: 90%;
+        font-style: italic;
+}
+
+h1.title {
+        font-size: 200%;
+        font-weight: bold;
+        padding-top: 0.2em;
+        padding-bottom: 0.2em;
+        text-align: left;
+        border: none;
+}

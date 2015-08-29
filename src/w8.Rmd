@@ -1,0 +1,53 @@
+---
+title: 'Week 8: IV with Heterogeneous Effect -- Generalization'
+author: "JJ Chen"
+date: "March 6, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    css: style.css
+    fig_caption: yes
+    fig_height: 5
+    fig_width: 6
+    includes:
+      in_header: macro.html
+    incremental: no
+    keep_md: no
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    smaller: no
+    transition: default
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+## Review Plan
+
+- We will review three generalizations of the LATE Theorem
+    1. Multiple instruments
+    2. LATE with covariates
+    3. Treatment intensity: The ACR Theorem
+- Again, these are not about how to estimate IV models, but how to intereprete IV estimates
+
+#Multiple Instruments
+## Set up
+
+- Consider two mutually exclusive instruments $\rZ_{1i}$ and $\rZ_{2i}$
+    - What does mutally exclusive mean? 
+    - Think of a instrument set that are captured by a categorical variable.
+- Suppose both of them are valid instruments satisfied assumptions for the LATE Theorem. So:
+    - $\rZ_{1i}$ gives $\EE{ \rY_{1i} - \rY_{0i} \mid \rD^{\rZ_1}_{1i} - \rD^{\rZ_1}_{0i} }$
+    - $\rZ_{2i}$ gives $\EE{ \rY_{1i} - \rY_{0i} \mid \rD^{\rZ_2}_{1i} - \rD^{\rZ_2}_{0i} }$

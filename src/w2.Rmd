@@ -1,0 +1,147 @@
+---
+title: 'Week 2: OVB'
+author: "JJ Chen"
+date: "January 23, 2015"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    smaller: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+### Anoucement: Today's Tasks
+
+- OVB:
+    - Regression Anatomy and OVB formula
+    - Typical Usage of OVB formula
+    - Bad controls
+- Examples: 
+    - _Estimating the payoff to attending a more selective college: An application of selection on observables and unobservables_ (@dale2002estimating)
+    - _Selection on Observed and Unobserved Variables: Assessing the Effectiveness of Catholic Schools_ (@altonji2005selection)
+
+# OVB
+##
+### Regression Review
+- What kind of regressions do we want to run?
+- By regression justifications \#1 and \#3 in MHE, a regression "gives" us a CEF
+    - but most of the time, we only interested in one kind of CEF
+    - we want a CEF that can be supported by a believable CIA, so that we will comparing like with like
+    - this is about the same as runing a regression without OVB
+- Questions about CIA?
+    - recall from last section, CIA is hard to justified in observational studies
+    
+### Regression Anatomy (the FWL Theorem)
+- Consider a bivariate population regression: $\rY_i = \alpha + \beta \rD_i + e_i$
+    - take covariance in either side, $\Cov(\rY_i, \rD_i) = \Cov(\alpha + \beta \rD_i + e_i, \rD_i) \implies$
+    - $\beta = \frac{\Cov(\rY_i,\rD_i)}{\Var(\rD_i)}$ (how about $\alpha$?)
+- Consider a multivariate population regression: $\rY_i = \alpha + \beta \rD_i + \rvX_i'\vgamma + e_i$
+    - regression anatomy; how to get $\beta$?
+    - Step 1 (optional): run a regression of $\rY_i$ on $\rvX_i$ and get the residual $\tilde{\rY}_i$
+    - Step 2: run a regression of $\rD_i$ on $\rvX_i$ and get the residual $\tilde{\rD}_i$
+    - Step 3: run a bivariate regression of $\tilde{\rY}_i$ on $\tilde{\rD}_i$
+- Thus $\beta = \frac{\Cov(\tilde{\rY}_i, \tilde{\rD}_i)}{\Var(\tilde{\rD}_i)}$, or $\beta = \frac{\Cov(\rY_i, \tilde{\rD}_i)}{\Var(\tilde{\rD}_i)}$ (Why?)
+    
+### OVB Formula
+- Consider a short and a long regression:
+    - $\rY_i = \alpha^s + \beta^s \rD_i + e^s_i$
+    - $\rY_i = \alpha^l + \beta^l \rD_i + \gamma^l \rX_i + e^l_i$
+- Taking covaraince for the short regression and substituding the long regression gives a simple OVB formula
+    - $\beta^s = \frac{\Cov(\rY_i,\rD_i)}{\Var(\rD_i)} \implies$
+    - $\beta^s = \frac{\Cov(\alpha^l + \beta^l \rD_i + \gamma^l \rX_i + e^l_i,\rD_i)}{\Var(\rD_i)} \implies$
+    - $\beta^s = \beta^l + \gamma^l\frac{\Cov(\rX_i,\rD_i)}{\Var(\rD_i)} = \beta^l + \gamma^l\pi_{\rX\rD}$
+        - where $\pi_{\rX\rD}$ is from the auxiliary regression $\rX_i = \phi + \pi_{\rX\rD} \rD_i + u_i$
+- short = long + OVB = long + the effect of omitted $\times$ the regression of omitted on include (what if more than one OV?)
+
+### Typical Usage of the OVB Formula
+- Often times, omitted variables are variables we wish we had
+- OVB formula is thus used to predict the likely direction of bias
+    - what's the sign of ability bias in a wage-schooling regression?
+    - ability is positively correlated with earning
+    - theory predicts that correlation between ability and schooling can be ambiguous (why?)
+- More exercises: 
+    - $\mathrm{sex}_{ir} = \alpha + \rho \mathrm{HIV}_r + \rvX_{ir}'\vgamma + u_i$
+    - $\mathrm{obisity}_{ir} = \alpha + \rho \mathrm{residential_sprawl}_r + \rvX_{ir}'\vgamma + u_i$
+- Some time we want to estimate the extent of OVB
+    - how large is the OVB if we want to explain away the entire estimate of your $\beta^s$
+    - catholic school example
+    
+### Bad Controls: What Should We Control for
+- Recall from CIA, a good control $\rvX_i$ allows us to say:
+    - conditional on $\rvX_i$, the assignment of $\rD_i$ is as good as ramdomly assigned
+    - $\EE{\rY_0\mid\rD_i,\rvX_i} = \EE{\rY_0\mid\rvX_i}$
+    - $\EE{\eta_i\mid\rD_i,\rvX_i} = \EE{\eta_i\mid\rvX_i}$
+- By the logic of OVB, it seems that we should control for all variables $\rvX_i$ that are correlated with both the outcome variable $\rY_i$ and the treatment $\rD_i$
+    - but we also said that $\rvX_i$ should be pre-treatment variables
+    - what happened if we controls for post-treatment variables (or intermediate outcomes)?
+    
+### Bad Controls: Examples
+- Example: suppose we want to know the impact of parents' occupations on kids' test scores: $\rY_i = \alpha + \beta \mathrm{occu}_i + e_i$
+    - should we control for family incomes (potentially affected by occupations)?
+    - is it a good control in terms of giving $\EE{\eta_i\mid\mathrm{occu},\mathrm{income}} = \EE{\eta_i\mid \mathrm{income}}$?
+    - does it make sense to compare two people with the same income (say 200K) but different occupations? (give an example)
+- Example from MHE: should we control for occupations in a wage-schooling regression?
+    - occupation is correlated with both the treatment (years of schooling) and outcome (earning)
+    
+### Bad Controls: Arguments
+- Intuitively, having more schooling allow one to work in a high-paying job, which is part of the return of schooling
+    - controlling for occupation eliminates this benefit
+    - the channel by which wages are increased is partly through occupations
+- More importantly, controlling for occupations introduces selection bias since it changes the composition of treatment group and control group 
+
+### Bad Controls: Composition Effects
+
+Person $\rY_{0i}$ $\rY_{1i}$ $\rW_{0i}$ $\rW_{1i}$
+------ ---------- ---------- ---------- ----------
+A      _1_         1.5        Blue        Blue
+B      _2_        _2.5_        Blue        White
+C      3          _3.5_        White       White
+
+Table: Bad controls and slection bias
+
+- ATE: 0.5
+- Controlling for occupations: 0
+
+# Discussions
+## Selective College
+### The Question and Selection Problem
+- Let's discuss Dale and Kruger's paper and review basic concepts in this week
+- Question: "Does the 'quality' of the college that students attend influence their subsequent earnings?"
+- Selection Problem:
+    - Can naive comparisons between students from selective colleges and non-selective colleges answer the question?
+    - What is the possible selection bias?
+    - If we control for family income, gender, race, SAT scores, and high school ranking, will the selection bias dispear? 
+    - If not, what will drive the bias term and how will you predict the sign of the bias?
+
+### Solutions to the Selection Problem
+- Choices made by school admission comittees and students in the application, screen, and match process might reveal useful information
+    - when applying for schools, students reveal their potential ability by the choice of schools they apply to
+    - admission comittees have the chance to read students' essays, letters of recommendation, etc
+    - given application outcomes, the decision of attending a particular school again reveals unobserved characteristics
+- Extend "selection on the observables" to "selection on the observables and unobservables"
+    - "match-applicant model"
+    - "self-revelation model"
+
+### Discussion
+- Table 1: Information from Application Results
+    - What does the application results tell about unobservables
+- Table 3: The effect of college selectivity on earnings
+    - Selection-on-observables and selection-on-unobservables
+    - How does the matched/rejected results and students' application choices reveal unobserved characteristics
+
+### References {.allowframebreaks}
