@@ -7,7 +7,7 @@ output:
     colortheme: beaver
     fonttheme: professionalfonts
     highlight: tango
-    keep_tex: yes
+    keep_tex: no
     pandoc_args:
     - --biblio=mybibli.bibtex
     - --email-obfuscation=none

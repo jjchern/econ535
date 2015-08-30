@@ -1,0 +1,181 @@
+---
+title: "S1"
+author: "Me"
+date: "August 25, 2014"
+output: pdf_document
+---
+
+### Today's Section
+
+- Welcome to Econ 534 section
+- Today's tasks
+    - Introduction to the Section format
+    - Brief road map for the Core Econometric sequence
+        - Econ 534, Econ 535, Econ 539, and some naive suggestion
+    - Introduction to Stata: mainly demonstrations 
+        - Basics, Regression tables, and resources
+
+# Introduction to Econ 534 Section
+
+##
+
+### About Me
+
+- JJ Chen (2nd year Econ)
+- jchen215@gmail.com
+- Section Hour: Friday 10:00-10:50 a.m. at SEL 2058
+- Office Hour: Tuesday and Thursday 1:00 - 1:50 p.m. at the library
+    - I prefer meeting at the library so that we can use big white boards at the IDEA Commons
+    - Text me the location when you arrive 
+    - If you can not make it, email me for another time 
+    - I would also appreciate it if you could send me questions or topics before meeting. But free free to drop by during OH
+
+### About the Section
+
+- We will have 15 sections this semester.
+- For every section, I was planning to 
+
+    1. quickly review the class material
+    2. perhaps provide a complementary perspective on the lecture material
+    3. briefly comment on the problem sets
+    4. give some examples or applications 
+    5. leave a few optional exercises if I couldn't finish the examples or applications. 
+
+### More about the Section
+
+- Sections are optional -- I don't mind if you don't come, but I will try to be helpful
+- Feel free to suggest section topics
+- If you want to come but forget or unable to come: 
+    - Section notes will be posted on Blackboard every Friday night
+    
+# Brief Outline of the Core Econometrics Courses
+
+## 
+
+### Econ 534: Classical Econometric Theory (Prof. Qureshi)
+
+- Keywords: Estimation and inference
+- Topics: OLS (the FWL theorem, the GM theorem, algebraic properties, finite sample properties, large sample properties, violations of GM assumptions), GLS, panel data models (FD, FE, RE, DID), etc.
+- Course features: tons of matrices
+
+### Econ 535: "Partial" Modern Practice of Applied Econometrics (Prof. Lubotsky)
+
+- Keywords: Identification strategies
+- Topics: OLS Regression + causal inference, matching and propensity scores, IV, RD, DID, FE, correlated RE, etc.
+- Course features: 
+    - Many readings and things like "2SLS is a many-splendored thing"
+    - A "shoe-leather" methodology: research design based on subject-mattered knowledge; bizarre variations
+    - Regression (as a statistical technique) along is often not enough to measure causal effect (of our interest)
+
+### Econ 539: Microeconometrics (Prof. Ost and Prof. Casey)
+
+- Keywords: Reduced-form meets structural modeling
+- Topics: Selection on observable and unobervables (aka, more on topics covered in Econ 535), more on identifications, MLE, GMM, discrete choices models, count models, censored reg., duration models, Bayesian inference, dynamic discrete choices models, etc.
+
+## Some Naive Suggestions
+
+### Some Naive Suggestions: More on Econ 534
+
+- If you are not interested in econometric theory, Econ 534 may seem rather technical or maybe irrelevant. But it would be basics for your future applied projects. 
+- If you are familiar with the classical econometric theory, I think you can still learn a lot from the lectures and problem sets. 
+- If you are not satisfied with the sections or the level of difficulties in this class, try forming a discussion group to study more advanced topics. It is very beneficial and I will be happy to learn together with you guys.
+- If you don't like Stata, try R. R 3.0 + R Studio + Rmd + Knitr makes writing dynamic documents and reproducible reports becomes much easier. But I do think it is still a good idea to invest in Stata.
+
+### Some Naive Suggestions: Textbooks
+
+- In addition to Greene, you could checkout the following textbooks: @davidson2004econometric, @hayashi2000econometrics, @wooldridge2010econometric, @cameron2005microeconometrics, @kennedy2006guide, @ruudintroduction, @goldberger1991course
+    - try the first two if you're interested in time series data
+    - try the 3rd and 4th if you like panel data
+    - try the last three books if you prefer learning things a bit more slowly
+- There are some free online books like [Hansen (2014)](http://www.ssc.wisc.edu/~bhansen/econometrics/Econometrics.pdf), [Michael (2014)](http://pareto.uab.es/mcreel/Econometrics/econometrics.pdf), and [Stachurski (2014)](http://johnstachurski.net/_downloads/course_notes.pdf), just to name a few
+- Also two solid undergraduate textbooks: @stock2003introduction and @wooldridge2012introductory
+- Note that most of these textbooks are not that consistent with the modern practice of empirical economic research. See @chen2013regression for an interesting discussion.
+
+### Some Naive Suggestions: Textbooks
+
+- The other textbook @angrist2008mostly talks more about measuring causal effect of interest. These books might be helpful for enhancing understanding of causality: @cartwright2007hunting, @imbens2014causal, @freedman2010statistical, @pearl2000causality
+    - These books contains insightful discussion, but they can be luxury goods for most first year graduate students
+    
+# Stata
+
+## 
+
+### Stata: A Quick Introduction
+
+- Our department's computer lab has Stata installed. \sout{So as SEL 2058 and SEL 2249F}.
+- For Econ students, I assume you know how to assess to the SMITH server with Secure Shell (SSH)
+- I will demonstrate how to use Stata's do-editor to:
+    - read data
+    - save output using a log file
+    - describe, browse, and summarize data
+    - generate new variables (log, quadratic transformations, etc.)
+    - run Mincer's regressions
+    - install user written commands 
+    - present regression results in a table
+- All these are basics
+    
+### Stata: A Quick Introduction
+
+- Depending on demands, in future sections we might tough on topics such as 
+    - simulation, Stata programming, cleaning data, and so on
+- But you can simply pick up by yourself, I bet most economists learn statistical packages and programming themselves
+- Here are some books: @cameron2009microeconometrics, @baum2006introduction, @baum2009introduction, and @mitchell2012interpreting
+- Also many online [resources](http://www.stata.com/links/resources-for-learning-stata/) 
+- Finally, the best way to learn Stata is learning by doing: go to your favourate journals or authors' website and see if they provide data and Stata code. Download them and try to understand them line by line.
+
+### Demon: read and summarize data
+
+\footnotesize
+
+```
+* basic configuration
+
+clear
+set more off
+cd  "/Users/chan/Documents/Econ 534/"
+ 
+* load the data: national longitudinal survey of women
+
+use http://www.stata-press.com/data/r12/nlsw88.dta
+
+* get to know the data
+
+describe
+browse
+summarize
+twoway scatter wage grade
+```
+
+### Demo: Transformation
+
+\footnotesize
+
+```
+* generate new variables
+
+gen lnwage = ln(wage) // generate dep var
+gen expr = age - grade - 6 // generate experience
+gen expr2 = expr * expr // generate expr squared
+tab race, gen(racedum) // generate race dummies
+
+local controls "racedum1 racedum2 married smsa" 
+```
+
+### Demo: Regression Tables
+
+\footnotesize
+
+```
+* run regressions and make a table
+* ssc install estout
+```
+
+eststo: reg lnwage grade expr expr2, r
+
+eststo: reg lnwage grade expr expr2 `controls', r
+
+```
+esttab, se(3) b(3) r2 ar2 ///
+  varlabels(_cons Constant) ///
+  ti("The Mincer Regressions") 
+```

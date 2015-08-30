@@ -8,3 +8,7 @@ survival
 AER
 Formula
 rdd
+rmarkdown
+stargazer
+texreg
+knitr

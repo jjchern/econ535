@@ -1,0 +1,160 @@
+---
+title: 'Section 11: Asymptotic Results'
+author: "JJ Chen"
+date: "November 7, 2014"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fonttheme: professionalfonts
+    highlight: tango
+    keep_tex: yes
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --email-obfuscation=none
+    template: default.beamer.tex
+    theme: Dresden
+  ioslides_presentation:
+    pandoc_args:
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    smaller: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+# Review of Week 11
+## 
+### Key Results: 3 theorems
+
+- So far in class we have proved three theorems:
+    - Thm1: $\plim \hvb = \vbeta$
+    - Thm2: $\plim \hvb = \vbeta$
+    - Thm3: $\sqrt{n}(\hvb - \vbeta) \dto \rN(\mZeros, \sigma^2 \mQ\inv)$
+- based on the following assumptions:
+    - a: $\vy = \mX \vb + \vepsi$
+    - b: $\{\vx_i', \epsi_i\}$ be an i.i.d. sequence
+    - ci: $\E(\epsi_i \mid \vx_i) = 0$
+    - cii: $\E(\vepsi\vepsi' \mid \mX) = \sigma^2 \mI, \sigma^2 < \infty$
+    - di: $\E(\mid x_{ij} \mid^2) < \infty, j = 1, \cdots, k$
+    - dii: $\E(\vx_i\vx_i') = \mQ,$ positive definite
+    
+### Key Results: Est.Asym.Var of $\hvb$
+
+- Thm 3 (asymtotic normality) "implies" that $\hvb \dto \rN(\vbeta, \frac{\sigma^2}{n}\mQ\inv)$, which allows us to see the asymtotic covariance matrix of $\hvb$ as $\frac{\sigma^2}{n}\mQ\inv$
+    - Note that $\mQ = \E(\vx_i\vx_i')$. 
+    - A consistent estimator is $\frac{1}{n}\sum\limits_{i=1}^n \vx_i\vx_i'$ (based on di, dii, and LLN)
+    - So that a consistent estimator for $\mQ\inv$ is $n(\sum\limits_{i=1}^n \vx_i\vx_i')\inv$
+    - In homework you will prove $s^2$ is a consistent estimator for $\sigma^2$
+- Together we get the est. asym. cov. matrix for $\hvb$ as
+    - $\frac{s^2}{n}n(\sum\limits_{i=1}^n \vx_i\vx_i')\inv = s^2(\sum\limits_{i=1}^n \vx_i\vx_i')\inv = s^2(\mX'\mX)\inv$.
+    
+# Asymtotic Distribution of the Wald-Stat
+##
+### Proof 1: Notation
+
+- Recall that under $\rH_0: \mR\hvb = q$, thus based on Thm3
+    - $\sqrt{n}(\mR\hvb - \vq) \dto \rN(\mZeros, \sigma^2\mR\mQ\inv\mR')$
+- Define $\vz = \sqrt{n}(\mR\hvb - \vq)$ and $\mP = \sigma^2\mR\mQ\inv\mR'$, so that
+    - $\vz \dto \rN(\mZeros, \mP)$
+- Since $\mP$ is positive definite (we've imposed $\mQ$ to be positive definite in assumption dii of Thm3), $\mP\inv$ exists so does its sqrt matrix $\mP^{-\frac{1}{2}}$. Note that
+    - $\mP^{-\frac{1}{2}}\mP^{-\frac{1}{2}} = \mP\inv$
+    
+### Proof 2: Quadratic Form and $\chi^2$
+
+- Since $\vz \dto \rN(\mZeros, \mP)$
+    - $\mP^{-\frac{1}{2}}\vz \dto \rN(\mP^{-\frac{1}{2}}\mZeros, \mP^{-\frac{1}{2}}\mP\mP^{-\frac{1}{2}})$, or
+    - $\mP^{-\frac{1}{2}}\vz \dto \rN(\mZeros, \mI)$
+- Thus
+    - $(\mP^{-\frac{1}{2}}\vz)'(\mP^{-\frac{1}{2}}\vz) = \vz'\mP\inv\vz \dto \chi^2(J)$
+- Note that $\vz'\mP\inv\vz$ is a quadratic form of a $J$-dimensional asymptotically normal random vector with the inverse of its covariance matrix $\mP\inv$, this is distributed as a $\chi^2$ with $J$ degrees of freedom. ($J$ is the \# of linear restrictions.)
+
+### Proof 3: Plug in for What $\vz$ and $\mP\inv$ are
+
+- $\vz'\mP\inv\vz \dto \chi^2(J)$
+    - $\implies \sqrt{n}(\mR\hvb - \vq)\inv[\sigma^2\mR\mQ\inv\mR']\inv\sqrt{n}(\mR\hvb - \vq) \dto \chi^2(J)$
+    - $\implies (\mR\hvb - \vq)\inv n [\sigma^2\mR\mQ\inv\mR']\inv (\mR\hvb - \vq) \dto \chi^2(J)$
+    - $\implies (\mR\hvb - \vq)\inv  [\frac{1}{n}\sigma^2\mR (\frac{\mX'\mX}{n})\inv\mR']\inv (\mR\hvb - \vq) \dto \chi^2(J)$
+    - $\implies (\mR\hvb - \vq)\inv  [\sigma^2\mR (\mX'\mX)\inv\mR']\inv (\mR\hvb - \vq) \dto \chi^2(J)$
+- Thus the Wald statistic is asymptotically distributed as $\chi^2(J)$.
+    - Note that $W =  (\mR\hvb - \vq)\inv  [\sigma^2\mR (\mX'\mX)\inv\mR']\inv (\mR\hvb - \vq)$
+    - Note also that above we use the fact $(\frac{\mX'\mX}{n})\inv \pto \mQ\inv$
+    - Since $s^2 \pto \sigma^2$, we can replace the $\sigma^2$ with $s^2$ in $W$ and the result still holds
+    
+### Asymtotic Relationship between $\rF$ and $\chi^2$ distribution
+
+- Recall that $F = \frac{(\mR\hvb - \vq)\inv  [\sigma^2\mR (\mX'\mX)\inv\mR']\inv (\mR\hvb - \vq)/J}{\frac{\ve'\ve}{\sigma^2}/n-k}$
+- We can rewrite it as 
+    - $F = \frac{\chi^2_J/J}{\chi^2_{n-k}/n-k}$
+- Note that as $n \to \infty$, the denominator "converge" to 1 because
+    - $\E(\frac{\chi^2_{n-k}}{n-K}) = \frac{n-k}{n-k} = 1$
+    - $\V(\frac{\chi^2_{n-k}}{n-k}) = \frac{2(n-k)}{(n-k)^2} = \frac{2}{n-k} \to 0$
+    - Thus the distribution degenerate to a constant 1 (its mean)
+- Thus $F \adistr \chi^2(J)/J$. This is the basis for large sample hypothesis testing, which is based on the asymptotic distribution of $\sqrt{n}(\hvb-\vbeta)$ rather than the exact normal distribution of $\vepsi$ (A6).
+
+
+# Comments and Notation Alerts
+##
+### Comments and Notation Alert 1
+
+- It might be helpful to define asymptotic bias of $\hvb$ as $\plim \hvb - \vbeta$. Thus consistency can be treated as "asymptotic unbiasedness".
+- It might be helpful to write $\plim\limits_{n \to \infty} \hvb_n = \vbeta$ at the beginning. It reminds me that $\{\hvb_n\}$ is also a sequence of random vector.
+- Sometimes we write "$\dto$" as "$\adistr$" to link to the exact distribution notation "$\distr$".
+
+    
+### Comments and Notation Alert 2
+
+- Sometimes we switch to observation specific notation "$\vx_i$". Different authors have difference preference for the exact definition of $\vx_i$: 
+    - some prefer to use it as a row vector coming directly from the design matrix $\mX$
+    - some prefer to keep it as a column vector. 
+    - Here we treat it as a $k \times 1$ column vector, but try to distinguish it from to the characteristic specific column vector $\vx_k$, which is $n \times 1$. 
+    - You can think of our $\vx_i$ as a __transpose__ of a generic row vector from our matrix $\mX$
+
+### Comments and Notation Alert 3
+
+- We can rewrite the familiar matrix notation of $\hvb$ as
+    - $\hvb = \olsmat = [\sum\limits_i\vx_i\vx_i']\inv \sum\limits_i \vx_i y_i$
+    - Note that $y_i$ is not a vector
+- Consider a simple example of $\mX'\vy$:
+    - $\mX'\vy = 
+\left(
+\begin{array}{cc}
+x_{11} & x_{12} \\
+x_{21} & x_{22}
+\end{array}
+\right)'
+\left(
+\begin{array}{c}
+y_1 \\
+y_2
+\end{array}
+\right) =
+\left(
+\begin{array}{c}
+x_{11}y_1 + x_{21}y_2 \\
+x_{12}y_1 + x_{22}y_2
+\end{array}
+\right)$
+    - $\sum\limits_i^2 \vx_i y_i = \vx_1 y_1 + \vx_2 y_2 = 
+       \left(
+       \begin{array}{c}
+       x_{11} \\
+       x_{12}
+       \end{array}
+       \right) y_1 +
+       \left(
+       \begin{array}{c}
+       x_{21} \\
+       x_{22}
+       \end{array}
+       \right) y_2$
+       
+### Comments and Notation Alert 4
+
+- To see one advantage of the observation specific notation, rewrite the OLS estimator again:
+    - $\hvb = [\frac{1}{n}\sum\limits_i\vx_i\vx_i']\inv [\frac{1}{n}\sum\limits_i \vx_i y_i]$
+- We've introduced this notation before and interpret it as a sample analog
+- Treating OLS estimators as functions of sample average is the key to most asymptotic results: it allows us to apply the Law of Large Number and Central Limit Theorem
+    - There are many versions of LLN and CLT. If you are proving asymptotic results in your problem set, try to include the specific versions of LLN or CLT you are using, so that both you and me know clearly which assumptions are necessary for your proof.

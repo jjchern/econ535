@@ -1,0 +1,189 @@
+---
+title: "Econ 534: Section Note 02"
+author: "JJ Chen^[jchen215@uic.edu]"
+date: "September 5, 2014"
+output:
+  pdf_document:
+    fig_caption: no
+    fig_height: 3
+    fig_width: 4
+    highlight: tango
+    keep_tex: yes
+    latex_engine: xelatex
+    pandoc_args:
+    - --standalone
+    - --smart
+    - --number-sections
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    template: mytemplate.tex
+  html_document: default
+  word_document:
+    highlight: pygments
+mainfont: Georgia
+monofont: Bitstream Vera Sans Mono
+lang: english
+sansfont: Arial
+fontsize: 12pt
+version: 1
+section: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+> Of all the principles that can be proposed for this purpose, I think there is none more general, more exact, or easier to apply, than that which we have used in this work; it consists of making the sum of the squares of the errors a _minimum_. By this method, a kind of equilibrium is established among the errors which, since it prevents the extremes from dominating, is appropriate for revealing the state of the system which most nearly approaches the truth.
+> --- Legendre, 1805
+
+> The principle that the sum of the squares of the differences between the observed and computed quantities must be a minimum may, in the following manner, be considered independently of the calculus of probabilities.
+> --- Gauss, 1809 (For S3)
+
+> Dr. neyman advocated, wisely, in his opinion, the system which he ascribed to Markoff, though this was in essence the system of Gauss. It must be remembered that if the variances from the different populations were not, on a plausible expectation, to be considered equal, one seldom had prior knowledge or experimental evidence sufficient to make the $P_i$ of Dr. Neyman's equation (8) properly speaking known numbers.
+> --- Fisher, 1934 (for S3)
+
+> Idea: Add Review Session to your Google calender. (How)
+
+Bugs might exist. In today's section, we'll 
+
+1. review some basic concepts on Euclidean space (10 min),
+2. discuss LS solution in Euclidean space (15 min),
+3. see the partial regression graphically and numerically in Stata (15 min).
+
+# Quick Review
+
+In the first two weeks, we have covered:
+
+1. The Least Square (LS) solution $\hb = \olsmat$, and thus the predicted vector and residual vector: $\vy = \hat{\vy} + \hat{\vu} = \mX \hb + \hat{\vu}$.
+2. Algebraic properties of LS solution: 
+    (1) P1 - P5 (See lecture notes. Notice that your data matrix should have a constant vector for these properties to be true).
+    (2) Measure of goodness of fit: centered $R^2$ and $\bar{R}^2$.
+    (3) Partial regression, projection, and the FWL theorem.
+    
+So far we only talked about the __algebric__ (or __numerical__) properties of the LS solution. These properties exist simply because we apply the method of LS to data sets. Hence they hold regardless of whether you are talking about a population or a sample at hand. (To minimize confusion, I will adopt the superpopulation idea and use notations like $\hb$ and $\hat{\vu}$ to discuss their algebraic properties. These "hats" are not essential at the moment.)
+
+
+
+# Euclidean Space $(\SR^n, \SR, +, \cdot, \langle \, \rangle)$
+
+Euclidean space is just our familiar world, in which we are allowed to do vector addition, scalar multiplication, and inner product in the vector space.
+
+1. Vector addition (_visualize it!_ If you see "_visualize it!_" hereafter, try to draw a two- or three-dimensional graph by yourself. If you couldn't do it and want to know it, ask your friends who attend the review sessions or come to my office hour). 
+
+    - Example: $\hat{\vy} + \hat{\vu} = \vy$. 
+
+2. Scalar multiplication (_visualize it!_).
+
+    - Example: $\hat{\beta} \cdot \vx = \hat{\vy}$.
+    
+3. Inner product (_visualize it!_). 
+
+    - Example: $\langle \hat{\vu},\hat{\vu} \rangle \equiv \hat{\vu}' \hat{\vu} \equiv \Sigma \hat{u}_i^2$. (Note that inner product defines sum of squares in this example.)
+    
+    - With inner product, we are able to define the length (or norm) or a vector (_visualize it!_), $\norm{\vy} = (\vy' \vy)^{\frac{1}{2}} = \sqrt{\Sigma y_i^2}$, and the angle between two vectors (_visualize it!_), $\cos \theta = \frac{\langle \vy, \hat{\vy} \rangle}{\norm{\vy} \norm{\hat{\vy}}}$.
+    
+4. Combine vector addition and scalar multiplication, we can use column vectors to form a __subspace__ in the $N$-dimensional Euclidean space.
+
+    - Example: $\vx = \vx_1 \beta_1 + \vx_2 \beta_2, \forall \beta_1, \beta_2 \in \SR$. All linear combinations of $\vx_1$ and $\vx_2$ form a whole 2-D plane. (_Visualize it!_) We call it $\spansp(\vx_1, \vx_2)$, or $\col(\mX)$, where $\mX = (\vx_1, \vx_2)$.
+    
+# LS Solution in Euclidean Space
+
+Let's now put the LS solution into a Euclidean space. Given a data matrix $\mX_{nk}$, the columns of $\mX_{nk}$ (assumed linear independent) form a "explained space", which is denoted $\col(\mX)$, with $\dim = k$. 
+
+How about the other $n-k$ dimensions in the $n$-dimensional Euclidean space? The __orthogonal complement__ of $\col(\mX)$, which is denoted $\col^{\bot}(\mX)$ or $\kersp(\mX')$ or $\nullsp(\mX')$, form a "residual space" with $\dim = n-k$. (These dimensions will be handy when we discuss degrees of freedom.)
+
+## Visualize $\hat{\vy}$ , $\hat{\vu}$, and their respective spaces 
+
+- Example: Consider $n = 2$ and $k = 1$. Draw the graph for $\mX, \hat{\beta} \mX (=\hat{\vy}), \hat{\vu}, \vy, \col(\mX), \nullsp(\mX')$. (_Visualize it!_)
+- Example: Consider $n = 3$ and $k = 2$. Do the same thing. (_Visualize it!_)
+
+Form the graphs we drew, we should be able to "see" the algebraic properties P1 - P5. 
+
+## Visualize $TSS, RSS, ESS$ and $R^2$
+
+With the graph we drew, we can clearly "see" the Pythagoras' theorem,
+$$
+\norm{\vy}^2 = \norm{\hat{\vy}}^2 + \norm{\hat{\vu}}^2,
+$$
+or
+$$
+TSS = RSS + ESS,
+$$
+and get the geometric meaning of $R^2$:
+$$
+R^2 = (\frac{\norm{\hat{\vy}}}{\norm{\vy}})^2 = (\cos \theta)^2.
+$$
+Naturally, $0 \leq \cos^2 \theta \leq 1$. Note that if we omit a constant vector in the data matrix, the $R^2$ here is the uncentered version and is different from the centered $R^2$ introduced in class. In some sense, the $R^2$ formula we see in class is one of the many application of the FWL theorem. 
+
+## Projection, Partial Regression, and the FWL Theorem
+
+It should be clear from the graph that the $\hat{\vy}$ comes from a __projection__ of $\vy$ onto $\col(\mX)$ and $\hat{\vu}$ comes from a projection of $\vy$ onto $\nullsp(\mX')$. (Imagining using a "Flashlight" app. in your smart phone.) In linear algebra, a projection (or any transformation) can be represented as a matrix. Thus we have
+$$
+\vy = \hat{\vy} + \hat{\vu} = \mP_{\mX} \vy + \mM_{\mX} \vy,
+$$
+where $\mP_{\mX} = \mX (\mX'\mX)^{-1} \mX'$ and $\mM_{\mX} = \mI_n - \mP_{\mX}$ are two projections.
+
+The following properties should be intuitive:
+
+1. $\mP_{\mX}  \mP_{\mX} = \mP_{\mX}$. _(Two ("vertical") "Flashlights" make one "Flashlight".)_
+2. $\mM_{\mX}  \mM_{\mX} = \mM_{\mX}$. _(Two ("horizontal") "Flashlights" make one "Flashlight".)_
+3. $\mP_{\mX}  \mM_{\mX} = \mZeros_n$. _(Two "Flashlights" cancel the effect of each other.)_
+4. $\mP_{\mX} + \mM_{\mX} = \mI_n$. _(Decompose a vector into two and add them back.)_
+5. $\mP'_{\mX} = \mP_{\mX}$. _(Projection preserves the norm of a vector.)_
+6. $\mM'_{\mX} = \mM_{\mX}$. _(Projection preserves the norm of a vector.)_
+7. $\mP_{\mX}  \mP_{\mX_1} = \mP_{\mX_1}$. _(A big "Flashlight" and her little friend.)_
+8. $\mM_{\mX}  \mM_{\mX_1} = \mM_{\mX}$. _(A big "Flashlight" and his little friend.)_
+
+With the projection matrices at hand, we can apply them to partial regression and get to know the FWL theorem: One can get (1) the same LS vectors ($\hb_2$) and (2) the residual vectors from the following two regressions:
+$$
+\vy = \mX_1 \vbeta_1 + \mX_2 \vbeta_2 + \vu, \qquad
+\mM_{\mX_1} \vy = \mM_{\mX_1} \mX_2 \vbeta_2 + \vv.
+$$
+
+There are many applications of the FWL theorem, such as visualize key regression result, deviation from means, detrending, adjustment for seasonal effects, OVB, FE estimation, IV estimation, and so on. I will use Stata to demonstrate some of these applications.
+
+## Stata Demo: The FWL Theorem
+
+The FWL theorem can be described in a 3-step algorithm:
+
+- Step 1: Project $\vy$ onto the "residual space" $\nullsp(\mX'_1)$ and get the residual vector $\mM_{\mX_1} \vy$.
+- Step 2: Project $\mX_2$ onto the "residual space" $\nullsp(\mX'_1)$ and get the residual vector $\mM_{\mX_2} \mX_2$.
+- Step 3: Use two new residual vectors and apply the LS method to get the solution.
+
+Note that Step 1 can be omitted if you are only interested in $\hat{\vbeta}_2$.
+
+~~~~~~~~~~~~~~~~~~~~~~
+clear
+set more off
+cd "/Users/chan/Documents/Econ 534/"
+
+* 1. Partial reg and "holding other var constant"
+
+sysuse nlsw88
+
+reg wage ttl_exp, noheader // bivariate case
+
+reg wage ttl_exp age, nohe // partial effect
+
+qui reg wage age
+predict yres, res
+qui reg ttl_exp age
+predict xres, res // partial out the effect of age
+reg yres xres, noconstant nohe // how about `reg wage xres, noc`
+
+* 2. Regression Anatomy: Visualize Partial Effect
+
+* ssc install reganat
+reganat wage ttl_exp grade, dis(ttl_exp) biline
+
+* 3. Deviation from means
+
+su wage ttl_exp // check out the means
+reg wage, noheader // reg with a constant
+predict yres2, res // why `yres2` is the demeaned `wage`
+reg ttl_exp, noheader // reg with a constant
+predict xres2, res // why `xres2` is the demeaned `ttl_exp`
+
+reg yres2 xres2, noc nohe 
+reg wage ttl_exp, nohe // what can you say about the slope coef.
+~~~~~~~~~~~~~~~~~~~~~~~

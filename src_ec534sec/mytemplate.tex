@@ -1,0 +1,332 @@
+\documentclass[$if(fontsize)$
+                   $fontsize$,
+               $endif$
+               $if(lang)$
+                   $lang$,
+               $endif$
+               $if(papersize)$
+                   $papersize$,
+               $endif$
+               $for(classoption)$
+                   $classoption$
+               $sep$,$endfor$]
+               {$documentclass$}
+\usepackage{supertabular}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\usepackage{amsmath} % for \argmin
+
+% Stata output
+\usepackage{stata}
+\def\stlogscaled#1#2{\scalebox{#1}{\begin{minipage}{\hsize}
+    \begin{stlog}
+    \input{#2.log.tex}
+    \end{stlog}
+    \end{minipage}}}
+
+% Fancy 頁眉和頁腳
+\usepackage{fancyhdr}
+\pagestyle{fancy} %The default `plain` pagestyle just numbers the pages
+\pagenumbering{arabic}
+\lhead{\itshape $title$}
+\chead{}
+\rhead{\itshape{\nouppercase{\leftmark}}}
+\lfoot{v $version$}
+\cfoot{}
+\rfoot{\thepage}
+
+%%% Econometrics Notation
+\input{ee.sty}
+%%
+
+% Typeface settings
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{} % use microtype if available
+\usepackage[T1]{fontenc}
+\usepackage{amssymb,amsmath}
+\usepackage{amsfonts} % add when consider econometrics notations
+\usepackage{bm} % add when consider econometrics notations
+%  \DeclareMathOperator{\plim}{plim}
+
+% 以下是amsmath中使用\widebar
+\makeatletter
+\newcommand*\rel@kern[1]{\kern#1\dimexpr\macc@kerna}
+\newcommand*\widebar[1]{%
+  \begingroup
+  \def\mathaccent##1##2{%
+    \rel@kern{0.8}%
+    \overline{\rel@kern{-0.8}\macc@nucleus\rel@kern{0.2}}%
+    \rel@kern{-0.2}%
+  }%
+  \macc@depth\@ne
+  \let\math@bgroup\@empty \let\math@egroup\macc@set@skewchar
+  \mathsurround\z@ \frozen@everymath{\mathgroup\macc@group\relax}%
+  \macc@set@skewchar\relax
+  \let\mathaccentV\macc@nested@a
+  \macc@nested@a\relax111{#1}%
+  \endgroup
+}
+\makeatother
+
+% To input tabout table
+\usepackage{tabularx,ragged2e,caption} 
+
+% Longtabe and friends. Also booktabs to input tabout table
+\usepackage{rotating,multirow,longtable,booktabs}
+% Dotted lines, load after longtable
+%\usepackage{arydshln}
+%\renewcommand*\cmidrule{\hdashline[.4pt/1pt]}% Dashed middle lines
+
+% 雙倍行距
+%\linespread{1.6} 
+
+% Footnote kerning
+%\usepackage{fnpct}
+% Footnote symbols
+%\usepackage[bottom,para,symbol*]{footmisc}
+
+% Margins, etc:
+% the `geometry` package makes for convenient adjusting of margins
+$if(geometry)$
+\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+$endif$
+%\geometry{verbose,letterpaper,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3cm}
+
+% Using abstracts
+\usepackage{abstract}
+
+% Paragraph format:
+% Pandoc prefers unindented paragraphs in the European style:
+\setlength{\parindent}{0pt}
+% with paragraph breaks marked by a slight lengthening of the space between paragraphs:
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+% Footnotes
+% if you have code in your footnotes, the million macro march 
+% kind of bumps into itself.
+% Pandoc, having just rendered your text into LaTeX, 
+% knows whether the 'variable' `verbatim-in-note` is True, and 
+% If it is, it asks for a  LaTeX package that solves the dilemma:
+$if(verbatim-in-note)$
+\usepackage{fancyvrb}
+$endif$
+% Evidently the order of unfolding of macros required that
+% we import a package to deal with them earlier
+% and issue a command it defines now. (Or maybe that's not the reason;
+% very often the order does matter as the insane system of macro expansion
+% must take place by stages.)
+$if(verbatim-in-note)$
+\VerbatimFootnotes % allows verbatim text in footnotes
+$endif$
+
+% Table formatting: 
+% What if you make a table? -- Pandoc knows, of course, and 
+% then declares that its  variable `table` is True and 
+% imports a table package suitable to its pleasantly simple tables. 
+% Needless to say infinitely   complicated tables are possible in 
+% LaTeX with suitable packages. We are spared the temptation:
+$if(tables)$
+\usepackage{longtable,booktabs}
+$endif$
+
+
+
+% Images
+$if(graphics)$
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+$endif$
+
+% Web-style links:
+%%\ifxetex 
+%%  \usepackage[setpagesize=false, % page size defined by xetex
+%%              unicode=false, % unicode breaks when used with xetex
+%%              xetex]{hyperref}
+%%\else
+\usepackage[unicode=true]{hyperref}
+%%\fi
+\hypersetup{breaklinks=true, %abc.com are code and must not be broken across lines
+            bookmarks=true,
+            pdfauthor={$author-meta$},
+            pdftitle={$title-meta$},
+            colorlinks=true,
+            citecolor=$if(citecolor)$$citecolor$$else$blue$endif$,
+            urlcolor=$if(urlcolor)$$urlcolor$$else$blue$endif$,
+            linkcolor=$if(linkcolor)$$linkcolor$$else$magenta$endif$,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+
+% Section numbering.  
+$if(numbersections)$
+$else$
+\setcounter{secnumdepth}{0}
+$endif$            
+
+% 還不知爲什麼
+$if(fontfamily)$
+  \usepackage{$fontfamily$}
+$else$
+  \usepackage{lmodern}
+$endif$
+
+% 還不知爲什麼
+$if(linestretch)$
+\usepackage{setspace}
+\setstretch{$linestretch$}
+$endif$
+
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+
+$if(euro)$
+  \usepackage{eurosym}
+$endif$
+\else % if luatex or xelatex
+  \usepackage{fontspec} % fontspec means we can specify pretty much any font.
+  \ifxetex
+    \usepackage{xltxtra,xunicode}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+$if(mainfont)$
+    \setmainfont{$mainfont$}
+$endif$
+$if(sansfont)$
+    \setsansfont{$sansfont$}
+$endif$
+$if(monofont)$
+    \setmonofont[Mapping=tex-ansi]{$monofont$}
+$endif$
+$if(mathfont)$
+    \setmathfont(Digits,Latin,Greek){$mathfont$}
+$endif$
+\fi
+
+$if(natbib)$
+\usepackage{natbib}
+\bibliographystyle{$if(biblio-style)$$biblio-style$$else$plainnat$endif$}
+$endif$
+
+$if(biblatex)$
+  \usepackage{biblatex}
+    $if(biblio-files)$
+      \bibliography{$biblio-files$}
+    $endif$
+$endif$
+
+$if(listings)$
+\usepackage{listings}
+$endif$
+
+$if(lhs)$
+\lstnewenvironment{code}{\lstset{language=Haskell,basicstyle=\small\ttfamily}}{}
+$endif$
+
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+$if(links-as-notes)$
+% Make links footnotes instead of hotlinks:
+\renewcommand{\href}[2]{#2\footnote{\url{#1}}}
+$endif$
+$if(strikeout)$
+\usepackage[normalem]{ulem}
+% avoid problems with \sout in headers with hyperref:
+\pdfstringdefDisableCommands{\renewcommand{\sout}{}}
+$endif$
+
+$if(lang)$
+\ifxetex
+  \usepackage{polyglossia}
+  \setmainlanguage{$mainlang$}
+\else
+  \usepackage[$lang$]{babel} % The `babel` package lets you determine what language you are using in a given stretch of text, so that typesetting will go well.
+\fi
+$endif$
+
+% You can include stuff for the header from a file specified on the command line
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+%%%%%%%%%%%%%%%%%%%%%% old title author and dates
+$if(title)$
+\title{$title$$if(subtitle)$\\\vspace{0.5em}{\large $subtitle$}$endif$}
+$endif$
+$if(author)$
+\author{$for(author)$$author$$sep$ \and $endfor$}
+$endif$
+\date{$date$}
+%%%%%%%%%%%%%%%%%%%%% new title, author, affiliation, email, and dates
+%%%%%%%%%%%%%%%%%%%%% borrow from http://kieranhealy.org/blog/archives/2014/01/23/plain-text/
+%$if(title)$
+%\title{\bigskip \bigskip $title$}
+%$endif$ 
+%\author{$for(author)$$author$$sep$\\$endfor$}
+%\author{$for(author)$
+%        \Large $author.name$ \vspace{0.05in} \\ 
+%        \normalsize\emph {$author.affiliation$} \\ 
+%        \newline $sep$ \and $endfor$}
+%\author{$for(author)$$author.name$ ($author.affiliation$)$sep$ \and $endfor$}
+%\date{$date$}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+$if(title)$
+\maketitle
+$endif$
+
+$for(include-before)$
+$include-before$
+$endfor$
+
+$if(toc)$
+{
+\hypersetup{linkcolor=green}
+\setcounter{tocdepth}{$toc-depth$}
+\tableofcontents
+}
+$endif$
+
+$if(abstract)$
+\begin{abstract}
+$abstract$
+\end{abstract}
+$endif$
+
+$body$
+
+$if(natbib)$
+  $if(biblio-files)$
+    $if(biblio-title)$
+        $if(book-class)$
+         \renewcommand\bibname{$biblio-title$}
+        $else$
+         \renewcommand\refname{$biblio-title$}
+        $endif$
+    $endif$
+      \bibliography{$biblio-files$}
+  $endif$
+$endif$
+
+$if(biblatex)$
+\printbibliography$if(biblio-title)$[title=$biblio-title$]$endif$
+$endif$
+
+$for(include-after)$
+$include-after$
+$endfor$
+
+\end{document}

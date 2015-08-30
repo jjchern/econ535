@@ -1,0 +1,207 @@
+---
+title: "Section Note 08: Midterm Review"
+author: "JJ Chen^[jchen215@uic.edu]"
+date: ""
+output:
+  pdf_document:
+    fig_caption: no
+    fig_height: 3
+    fig_width: 4
+    highlight: tango
+    keep_tex: yes
+    latex_engine: xelatex
+    pandoc_args:
+    - --standalone
+    - --smart
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    template: mytemplate.tex
+  html_document: default
+  word_document:
+    highlight: pygments
+mainfont: Georgia
+monofont: Bitstream Vera Sans Mono
+lang: english
+sansfont: Arial
+fontsize: 12pt
+version: 1
+section: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+# True or False
+
+Some questions are for concepts, some for notations. Almost all of them are false. This list is by no means complete, but quite a few of them come from my grading experience. As usually, bugs might exist.
+
+## LS Method
+
+1. For two $n \times 1$ vectors $\vu$ and $\vv$, $\norm{\vu + \vv}^2 = \norm{\vu}^2 + \norm{\vv}^2$.
+
+- __Correct if $\vu \bot \vv$. In general, $\norm{\vu + \vv}^2 = \norm{\vu}^2 + \norm{\vv}^2 - 2 <\vu,\vv>$.__
+
+2. $\hat{\beta}$ can be written as $\mX'\vy / \norm{\mX}^2$.
+
+- __I think it would be no problem if we write $\mX$ as $\vx$. That is, $\vx$ is a vector.__
+
+3. For two $n \times 1$ vectors $\vu$ and $\vv$, $\Var(\vu\vv') = \vu' \Var(\vv) \vu$.
+
+- __Should be $\Var(\vu\vv') = \vu \Var(\vv) \vu'$.__
+
+4. For a $n \times 1$ vector $\vu$, $\E(\vu)$ and $\Var(\vu)$ are $n \times 1$ vector.
+
+- __$\Var(\vu)$ is $n \times n$.__
+
+5. For two random variables $u$ and $v$, $\cov(u,v) = \E(uv)$.
+
+- __Correct if $\E(u) = 0$ or $\E(v)$ = 0 or both. In general, $\cov(u,v) = \E(uv) - \E(u)\E(v)$. Try relate this to $\E(\mX\vepsi) = 0$.__
+
+## GM Model
+
+1. Estimates are parameters.
+
+- __Think about $\vbeta$, $\hvb$, and $\hvb = 12$. Try use standard notations.__
+
+2. Residuals are random errors.
+
+- __For some authors the difference is blurry. But make sure you distingush $\vy - \E(\vy|\mX)$, $\vy - \mX\vbeta$, and $\vy - \mX\hvb$.__
+
+3. Data are random variables in a regression model.
+
+- __Data are realization of random variables.__
+
+4. Run a regression in Stata using the command `reg y x`. The degrees of freedom of the residual sum of squares is $n - 1$.
+
+- __Stata automatically add an intercept, so it would be $n - 1 - 1$.__
+
+5. $\vepsi \bot \vx$, and $\ve \indep \vx$.
+
+- __Better to write $\ve \bot \vx$ and $\vepsi \indep \vx$. The notation $\bot$ is for orthogonality and $\indep$ for stochastic independence. One idea is that they both mean "orthoganality", but they are defined differently in different vector spaces. Another way to think of it is that $\bot$ means that the angle between two deterministic vectors are 90 degrees, and $\indep$ means that the conditional distribution of $\vepsi$ given $\vx$ doest not depend on $\vx$.__
+
+6. $\Sigma_i e_i = 0$.
+
+- __If you add an intercept.__
+
+7. If you run a regression, the sum of the residuals is 0.
+
+- __Intercept.__
+
+7. $\EE{\vepsi'\vepsi} = \sigma^2 I_{n \times n}$ for the original GM model.
+
+- __$\EE{\vepsi\vepsi'} = \sigma^2 I_{n \times n}$ and $\EE{\vepsi'\vepsi} = n\sigma^2$.__
+
+8. $\hat{\vbeta} = \vbeta$.
+
+- __$\E(\hvb) = \vbeta$ or $\hvb = \vbeta + (\mX'\mX)\inv\mX\vepsi$.__
+
+9. $\sigma^2 = \Sigma_{i = 1}^n \epsi_i^2 / n$ and $\hat{\sigma^2} = s^2 = \Sigma^n_{i = 1} e_i^2 /n$.
+
+- __The first one is probably ok if we know all $\epsi_i$. The second one should adjust for degrees of freedom if we want an unbiased estimate.__
+
+10. $\hat{\sigma}$ (or $s$) is an unbiased estimate of $\sigma$.
+
+- __$\hat{\sigma}^2$ (or $s^2$, and I mean $\ve'\ve/n-k$) is an unbiased estimate of $\sigma^2$.__
+
+11. $\norm{\ve}^2 = \ve'\ve = \vepsi'\vepsi$.
+
+- __$\ve'\ve = \vepsi' \mM \vepsi$, where $\mM$ is a residual maker.__
+
+12. $\E(\vy|\mX) = \mX\hvb$.
+
+- __We assume $\E(\vy|\mX) = \mX\vbeta$.__
+
+13. $\Var(\vy|\mX) = \sigma^2$.
+
+- __$\Var(\vy|\mX) = \sigma^2 \mI_n$ or $\Var(y_i|X_i) = \sigma^2$.__
+
+14. $\vy = \mX\hvb + \vepsi$.
+
+- __$\vy = \mX\hvb + \ve$ or $\vy = \mX\vbeta + \vepsi$.__
+
+15. $\Var(\vbeta) = \sigma^2 (\mX'\mX)\inv$ and $\Var(\hvb) = \hat{\sigma}^2 (\mX'\mX)\inv$ in the original GM model.
+
+- __$\Var(\hvb) = \sigma^2 (\mX'\mX)\inv$ and $Est.\Var(\hvb) = \hat{\sigma}^2 (\mX'\mX)\inv$.__
+
+16. $\E(\hat{\vy} | \mX) = \mX \hvb$ in the modified GM model.
+
+- __$\E(\hat{\vy} | \mX) = \E(\mP \vy | \mX) = \mP \E(\vy | \mX) = \mP \mX \vbeta = \mX \vbeta$.__
+
+17. If there is no variation in $\vx_1, \cdots, \vx_k$, then their estimated coefficients are zero.
+
+- __They won't have estimated coefficients because of the rank condition. If there is no variation in $\vy$, then estimated coefficients would be zero.__
+
+18. In the GM model, residuals are independent from one observation to another.
+
+- __Better to replace residuals with random errors. And it is an assumption.__
+
+
+## Hypothesis Testing
+
+1. Run a regression of `wage` on `grade` and get a $t$-value of 2. The probability that $\beta_{\text{grade}} \neq 0$ is about 95%.
+
+- __From a frequentlists' point of view, $\beta_{\text{grade}}$ is either zero or not zero.__
+
+2. We are about 95% confidence that $\beta_{\text{grade}} \neq 0$ for the above $t$-value.
+
+- __This is not the idea, see the last question.__
+    
+2. If the above model is right and $\beta_{\text{grade}} = 0$, there is about a 5% of chance getting $|t| < 2$.
+
+- __Should be $|t| > 2$. But this is the idea for hypothesis testing.__
+
+3. A statistical significant overall $F$-value suggests the model is correct.
+
+- __There are several possibilities: an unlikely event occurred; or the model is right and the coefficients differ from 0; or the model is wrong.__
+
+4. Assume the error term is normally distributed. We will not be able to use the $t$-test if we only have 4 degrees of freedom.
+
+- __The normal assumption allows us to have exact distribution for the test statistic. It's okay to use it even if we only have 4 degrees of freedom.__
+
+## Specification Issues
+
+1. A specification says what variables go into a model, what the functional form is, and what should be assumed about the disturbance term. If the data are generated some other way, we misspecify the model. We can correct the specification error.
+
+- __Teach me if you know how to correctly specify the model (aka, the underlying data generating process).__
+
+2. In practice, we can add control variables to reduce omitted variable bias.
+
+- __Not necessarily. Bad controls (controls that are outcome variables of the explanatory variable of interest) would probably add bias. Control variables that have impacts on $y_i$ but do not correlated with $x_i$ would not reduce bias also. (But they are still "useful" as they could help to increase precisions of other estimates.) Finally, the logic of control variables is problematic in reality, see for example @clarke2005phantom (consume carefully though).__
+
+3. An estimated coefficient on the quadratic term measures the effect of the quadratic term on the dependent variable, control for other regressors.
+
+- __It would be impossible to hold the linear term fixed.__
+
+4. Consider a log-linear specification: $\log(y_i) = \alpha + \beta x_i + \epsilon_i$. The interpretation of $\beta$ is that a one unit change in $x$ is associated with $100 \times \beta \%$ change in $y$.
+
+- __Better to use $ln(y_i)$.__
+
+5. We can't run a model $\ln(y_i) = \alpha + \beta x_i + \epsilon_i$, where $x_i$ is a categorical variable.
+
+- __We can, but we are imposing restriction. It would be better to define some dummies based on $x_i$ and run a model with dummies.__
+
+6. I don't have good review topics for specification issues. On the one hand, things like interpretation of dummy variable and interaction terms, OVB, and functional forms and so on are pretty basic. On the other hand, I feel frustrated because I don't know how to correctly specify a regression model. In textbooks and problem sets we talk about "the true model", but in reality we do not have the luxury. Below are some responses to the fundamental specification issue. Perhaps all of them are bad responses. I don't know.
+
+    1. "Nothing is perfect."
+    2. "I know."
+    3. "Linearity is a good approximation."
+    4. "The assumptions are reasonable."
+    5. "The assumptions don't matter."
+    6. "The assumptions are conservative."
+    7. "You can't prove the assumptions are wrong."
+    8. "The biases will cancel."
+    9. "We can model the biases."
+    10. "We're doing what everybody else does."
+    11. "Now we use more sophisticated techniques. (We have GLS, IVLS, SEM, MM, GMM, MLE, ANOVA, Logits, Probits, Tobits, AIC, BIC, AR, ARIMA, ARCH, LASSO, Neural nets, DAGs, POM, IV, ATE, ATET, ATEN, LATE, Split sample IV, DID, DDD, Sharp RD, Fussy RD, RKD, ...)"
+    12. "If we don't do it, someone else will."
+    13. "What would you do?"
+    14. "Policy makers are better off with us than without us."
+    15. "We're estimating a lower bound."
+    16. "Not using a model is still a model."
+    17. "The model is still useful."
+    18. "You have to do the best you can with the data."
+    19. "You have to make assumptions in order to make progress."
+    20. "Where's the harm?"
+
+# Appendix

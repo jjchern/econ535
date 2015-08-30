@@ -1,0 +1,55 @@
+---
+title: "Section Note 07: Prediction and Prediction Interval"
+author: "JJ Chen^[jchen215@uic.edu]"
+date: "October 2, 2014"
+output:
+  pdf_document:
+    fig_caption: no
+    fig_height: 3
+    fig_width: 4
+    highlight: tango
+    keep_tex: yes
+    latex_engine: xelatex
+    pandoc_args:
+    - --standalone
+    - --smart
+    - --number-sections
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    template: mytemplate.tex
+  html_document: default
+  word_document:
+    highlight: pygments
+mainfont: Georgia
+monofont: Bitstream Vera Sans Mono
+lang: english
+sansfont: Arial
+fontsize: 12pt
+version: 1
+section: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+Bugs might exist. Below are a summary of today's session:
+
+# BLP
+
+1. The best linear predictor (BLP) of $y^0$ given $\vx^0$ is $$\hat{y}^0 = (\vx^0)'\hvb,$$ where $\hvb$ is the OLS estimator $\hvb = \olsmat$.
+
+# BLP with CIs
+
+2. The variance of BLP is $$\V(\hat{y}^0) = \sigma^2 (\vx^0)' (\mX'\mX)\inv (\vx^0),$$ and the estimated variance of BLP is $$\hat{\V}(\hat{y}^0) = \hat{\sigma}^2 (\vx^0)' (\mX'\mX)\inv (\vx^0).$$ 
+
+    The squared root of $\hat{\V}(\hat{y}^0)$ is the standard error of prediction (`stdp` in Stata) $se(\hat{y}^0)$, which can be used to construct confidence intervals for predicting of a "typical" observation $\E(y^0 | \vx = \vx^0)$: $$[\hat{y}^0 - t_{\alpha/2} * se(\hat{y}^0), \hat{y}^0 + t_{\alpha/2} * se(\hat{y}^0)].$$ See the Stata code for these type of prediction plots with CIs, and note that in general the interval is smallest at the mean values of $\vx^0$. 
+    
+
+3. The variance of prediction error (or forecast error in some context) using BLP is $$\V(e^0) = \V(y^0) + \V(\hat{y}^0) =\sigma^2 + \sigma^2 (\vx^0)' (\mX'\mX)\inv (\vx^0),$$ and the estimated variance of prediction error (or forecast error) is $$\hat{\V}(e^0) = \hat{\V}(y^0) + \hat{\V}(\hat{y}^0) = \hat{\sigma}^2 + \hat{\sigma}^2 (\vx^0)' (\mX'\mX)\inv (\vx^0).$$ 
+
+    The squared root of $\hat{\V}(e^0)$ is the standard error of prediction error (`stdf` in Stata, which stands for standard error of the forecast) $se(\hat{e}^0)$. It can be used to construct confidence intervals for predicting of a "specific" observation $y^0$: $$[\hat{y}^0 - t_{\alpha/2} * se(\hat{e}^0), \hat{y}^0 + t_{\alpha/2} * se(\hat{e}^0)].$$ Note that this confidence interval would be larger and one intuition is that we need to take into account of the uncertainty of "unobservables" associated with a "specific" observation, which is captured by the term $\V(y^0)$. See the Stata code for these type of prediction plots with CIs. 
+
+
+
+

@@ -1,0 +1,17 @@
+{
+    "contents" : "library(rmarkdown)\n\nrender(\"src/w1.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w2.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w3.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w4.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w5.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w6.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w7.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w8.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w9.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w10.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w12.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w13.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w14.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w15.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\nrender(\"src/w16.Rmd\", \"beamer_presentation\", output_dir = normalizePath(getwd()))\n",
+    "created" : 1440889720906.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4060871616",
+    "id" : "8E1FAA4E",
+    "lastKnownWriteTime" : 1440890622,
+    "path" : "~/Desktop/econ535/Make.R",
+    "project_path" : "Make.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

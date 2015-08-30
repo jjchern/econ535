@@ -1,0 +1,194 @@
+---
+title: "Econ 534: Section Note 04"
+author: "JJ Chen^[jchen215@uic.edu]"
+date: "September 19, 2014"
+output:
+  pdf_document:
+    fig_caption: no
+    fig_height: 3
+    fig_width: 4
+    highlight: tango
+    keep_tex: yes
+    latex_engine: xelatex
+    pandoc_args:
+    - --standalone
+    - --smart
+    - --number-sections
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    template: mytemplate.tex
+  html_document: default
+  word_document:
+    highlight: pygments
+mainfont: Georgia
+monofont: Bitstream Vera Sans Mono
+lang: english
+sansfont: Arial
+fontsize: 12pt
+version: 1
+section: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+Bugs might exist. In this week's review session, we will talk about:
+
+- Sampling
+- Sample Analog
+- Stata Demo: Monte Carlo simulation
+    - Programming basics: macros and loop
+    - Write a simple program
+    - Simulation and the unbiased results
+    
+# Review of the Week
+
+This passing week we extended the original GM model to the modified GM model. Given the modified assumptions:
+\begin{align}
+& \vy = \mX' \vbeta + \vepsi, \\
+& \rk(\mX) = k, \\
+& \E(\vepsi \mid \mX) = \vzeros, \\
+& \E(\vepsi \vepsi' \mid \mX) = \sigma^2 \mI, \\
+& \mX \,\text{stochastic},
+\end{align}
+we have the following finite sample properties of the OLS estimator:
+\begin{align}
+& \E(\hb \mid \mX) = \vbeta ,\, \E(\hb) = \vbeta, \\
+& \V(\hb \mid \mX) = \sigma^2 (\mX' \mX)\inv ,\, \V(\hb) = \sigma^2 \E[(\mX' \mX)\inv], \\
+& \V(\hb \mid \mX) \leq \V(\tilde{\vbeta} \cX) ,\, \V(\hb) \leq \V(\tilde{\vbeta}),
+\end{align}
+where $\tilde{\vbeta}$ is other linear unbiased estimator.
+
+Note that there is another parameter $\sigma^2$ in the GM model, and its estimator $\hat{\sigma}^2 = \ve'\ve / (n-k)$ has the following properties:
+\begin{align}
+& \E(\hat{\sigma}^2) = \sigma^2, \\
+& \E(\hat{\V}(\hb)) = \V(\hb).
+\end{align}
+
+# Sampling 
+
+Combined with a random sample from a multivariate population, the modified GM model can be used to investigate __statistical replationship__ of interest. The model contains a population specification, and the sampling scheme supports the model so that we can use both of them to estimate population parameters.
+
+Knowing a little bit about random sample scheme can help us seeing both the strength and weakness of the modified GM model. In this week's review session, we will discuss only the most widely adopted scheme: i.i.d. sampling. Note that this is not the only scheme that can support our model.
+
+To begin with, I will repeat the modified GM assumptions in a slightly different way:
+\begin{align}
+&\EE{\vy \cX} = \mX \vbeta ,\\
+&\VV{\vy \cX} = \sigma^2 \mI, \\
+&\rk(\mX) = k, \\
+&\mX \,\text{stochastic}.
+\end{align}
+This set of assumptions is mathematically identical to the assumptions we mentioned in last section. Both sets of assumptions have its merits and there are some subtleties behind them. We will talk about it when we have the language of causal inference.
+
+Now let's turn to the population of interest. 
+
+_(A note on the notations: In matrix algebra, we reserve bold-italic capital letters for matrices and bold italic lowercase letters for vectors. Elements of matrices and vectors are in italic lowercase. In statistics, we use capital letters for random variables (r.v.) and lowercase letters for their realizations. This creates inconsistency and confusions. I have no good solution to it. Here I will respect matrix algebra and use italic lowercase letters for r.v. A vector of r.v. is in bold-italic lowercase. Realization of a r.v. would be mentioned explicitly.)_
+
+## A Multivariate Population
+
+Consider a set of $k$ r.v. $(y, x_2, \cdots, x_k)$ with pdf $f(y, x_2, \cdots, x_k)$ and conditional pdf $g(y \mid x_2, \cdots, x_k)$. The first and second moments of these r.v.'s are: $\E(y)$, $\V(y)$, $\Cov(x_h, x_j)$, and $\Cov(x_h, y)$. 
+
+Suppose the __statistical relationship__ we are interested in is the CEF of $y$ given the $x$'s: 
+$$
+\EE{y\mid 1, x_2, \cdots, x_k} = \EE{y\mid \vx}.
+$$
+Suppose further that we can approximate and parametrize the CEF by using a linear function, so that $\EE{y \mid \vx} = \beta_1 + \beta_2 x_2 + \cdots + \beta_k x_k = \vx'\beta$. We assume the CVF is constant: $\V(y\mid\vx) = \sigma^2$.
+
+To sum, the population we specified has:
+\begin{equation} \label{eq:pop}
+\begin{split}
+&\EE{y \mid \vx} = \vx'\beta \\
+&\V(y\mid\vx) = \sigma^2
+\end{split}
+\end{equation}
+
+## The result of identical distribution
+
+When we sample randomly from the population, every drawing $(y_i, \vx'_i)$ comes from an identical multivariate distribution. Before actually drawing (a realization), an "intention" of a single draw $(y_i, \vx'_i)$ can be considered as a random vector that has the same pdf and cdf of the population: $f(y,x_2,\cdots,x_k)$ and $g(y \mid x_2, \cdots, x_k)$.
+
+Hence, the result of identical distributed sample is
+
+\begin{equation} \label{eq:id1}
+\begin{split}
+&\EE{y_i\mid \vx_i} = \vx'_i \vbeta \,\, (i=1, \cdots, n), \\
+&\VV{y_i\mid \vx_i} = \sigma^2 \,\, (i=1, \cdots, n).
+\end{split}
+\end{equation}
+
+Note that the idea of \eqref{eq:id1} is different from that of \eqref{eq:pop}.
+
+## The result of independent distribution
+
+When we sample randomly from the population, say we sample observation $i$ and $j$ for simplicity, the pdf of the observation $i$ on $y$ conditional on the observation $i$ and $j$ on their $k$ characteristics has the following result:
+\begin{equation*}
+\begin{split}
+g^* (y_i\mid \vx_i, \vx_j) &= \frac{f^*(y_i, \vx_i, \vx_j)}{h^*(\vx_i,\vx_j)} \\
+                       &= \frac{f(y_i,\vx_i)h(\vx_j)}{h(\vx_i)h(\vx_j)} \\
+                       &= \frac{f(y_i,\vx_i)}{h(\vx_i)} \\
+                       &= g(y_i\mid \vx_i) \\
+\implies \EE{y_i\mid \vx_i,\vx_j}&= \EE{y_i\mid \vx_i} = \vx'_i \vbeta \\
+\implies \VV{y_i\mid \vx_i,\vx_j}&= \VV{y_i\mid \vx_i} = \sigma^2
+\end{split}
+\end{equation*}
+The second equality comes from the fact that observation $i$ and $j$ are drew independently.
+
+Now consider the joint pdf of $y_i$ and $y_j$:
+\begin{equation*}
+\begin{split}
+g^{**} (y_i,y_j\mid \vx_i,\vx_j) &= \frac{f^{**}(y_i,\vx_i,y_j,\vx_j)}{h^*(\vx_i,\vx_j)} \\
+                                 &= \frac{f(y_i,\vx_i)f(y_j,\vx_j)}{h(\vx_i)h(\vx_j)} \\
+                                 &= (\frac{f(y_i,\vx_i)}{h(\vx_i)}) (\frac{f(y_j,\vx_j)}{h(\vx_j)}) \\
+                                 &= g(y_i\mid\vx_i)g(y_j\mid\vx_j) \\
+            \implies \Cov(y_i,y_j\mid x_i, x_j) &= 0
+\end{split}
+\end{equation*}
+The second equality again is the independent result.
+
+Extend the above results from observation $i$ and $j$ to any observations, we have the result of independent distribution:
+\begin{equation} \label{eq:id2}
+\begin{split}
+\EE{y_i\cX} &= \EE{y_i\mid\vx_i} = \vx'_i\vbeta, \\
+\VV{y_i\cX} &= \VV{y_i\mid\vx_i} = \sigma^2, \\
+\Cov(y_i, y_j \cX) &= 0, i \neq j \\
+\end{split}
+\end{equation}
+
+Note that the idea of \eqref{eq:id2} is different from that of \eqref{eq:id1}.
+
+## The Trivial Final Step
+
+The final step is to stack $n$ lines of \eqref{eq:id2} and write them compactly in algebra matrix notations:
+\begin{equation} \label{eq:GMas}
+\begin{split}
+\EE{\vy\cX} &= \mX \vbeta, \\
+\VV{\vy\cX} &= \sigma^2 \mI. \\
+\end{split}
+\end{equation}
+
+We reach the key GM assumptions. Hence, i.i.d. sampling supports the modified GM model. Question: Can you think of an important violation of the modified GM assumptions? (For example, think of situations when $\EE{\vy_i\mid \vx_i,\vx_j} \neq \EE{\vy_i\mid \vx_i}$.)
+
+# Sample Analog
+
+Now that we see a little bit clearer about the sampling scheme and the modified GM model (hopefully), it would be a great chance to introduce Methods of Moments and reinterpret OLS estimate as a sample analog. 
+
+Recall that if we specify the population, $\vbeta$ can be considered as a population parameter that uses all the information from the population. We have
+\begin{equation}
+\begin{split}
+\vbeta &= \olsmat \\
+       &= [(1/n)(\mX'\mX)]\inv [(1/n)(\mX' \vy)] \\
+       &= \EE{\vx_i \vx'_i}\inv \EE{\vx_i y_i},
+\end{split}
+\end{equation}
+where $\EE{\vx_i \vx'_i}\inv$ and $\EE{\vx_i y_i}$ is the population moments of the distribution. 
+
+When we have a random sample at hand (a realization), we can replace the population moments with sample moments and get the OLS estimate as a sample analog:
+\begin{equation}
+\hb = (\Sigma_i \vx_i \vx'_i)\inv (\Sigma_i \vx_i y_i).
+\end{equation}
+
+In the bivariate case, we have $\beta_1 = \frac{\Cov(x_i,y_i)}{\VV{x_i}}$ and $\hat{\beta}_1 = \frac{\sigma_{xy}}{\sigma^2_x}$, where $\sigma_{xy}$ and $\sigma_{x}^2$ are sample covariance and sample variance.
+
+# Monte Carlo Simulation
+
+Usually we only have one sample, and thus one OLS estimate. Simulation can generate as many samples as we want, and thus it is useful to study to behavior of an estimator. Please see the session do-file for simulation in Stata.

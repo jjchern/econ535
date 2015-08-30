@@ -1,0 +1,131 @@
+---
+title: "Section Note 05: Hypothesis Testing"
+author: "JJ Chen^[jchen215@uic.edu]"
+date: "October 2, 2014"
+output:
+  pdf_document:
+    fig_caption: no
+    fig_height: 3
+    fig_width: 4
+    highlight: tango
+    keep_tex: yes
+    latex_engine: xelatex
+    pandoc_args:
+    - --standalone
+    - --smart
+    - --number-sections
+    - --biblio=mybibli.bibtex
+    - --csl=chicago-author-date.csl
+    - --email-obfuscation=none
+    template: mytemplate.tex
+  html_document: default
+  word_document:
+    highlight: pygments
+mainfont: Georgia
+monofont: Bitstream Vera Sans Mono
+lang: english
+sansfont: Arial
+fontsize: 12pt
+version: 1
+section: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+Bugs might exist. In the review session, we mainly talked about geometric interpretations of the Wald principle and the Likelihood principle. This note corresponds to materials covered in class in week 5 and week 6. Here I did not fill in relevant graphs I drew in the session (restricted LS triangle and likelihood contour) that delivers the geometric intuitions. If you did not come to the session but want to know the visualization, let me know and we can set up a time for meeting.
+    
+# Review of the Weeks
+
+These two weeks we have the following key results for hypothesis testing:
+
+1. $t$ statistic:
+\begin{equation}
+\begin{split}
+        & \text{ Condition 1: }  z_{j} = \frac{\hat{\beta}_j - \beta_j^0}{\sqrt{\sigma^2 s^{jj}}} \distr N(0,1) \\
+       +& \text{ Condition 2: }  (n-k)\frac{s^2}{\sigma^2} = \frac{\ve'\ve}{\sigma^2} \distr \chi^2(n-k) \\
+       +& \text{ Condition 3: }  z_{j} \text{ is independent of } (n-k)\frac{s^2}{\sigma^2} \\
+\implies & t_{j} = \frac{\hat{\beta}_{j} - \beta^0_j}{se(\hat{\beta}_j)} \distr t(n-k).
+\end{split}
+\end{equation}
+
+2. $F$ statistic:
+\begin{equation}
+\begin{split}
+        & \text{ Condition 1: }  W = \frac{(\mR\hb - \vq)'[\mR(\mX' \mX)\inv \mR']\inv (\mR\hb - \vq)}{\sigma^2} \distr \chi^2(J) \\
+       +& \text{ Condition 2: }  (n-k)\frac{s^2}{\sigma^2} = \frac{\ve'\ve}{\sigma^2} \distr \chi^2(n-k) \\
+       +& \text{ Condition 3: }  W \text{ is independent of } (n-k)\frac{s^2}{\sigma^2} \\
+\implies & F = \frac{(\mR\hb - \vq)'[\mR(\mX' \mX)\inv \mR']\inv (\mR\hb - \vq)/J}{\ve'\ve/(n-k)} \distr F(J,n-k).
+\end{split}
+\end{equation}
+Note that the $W$ statistic comes from the Wald principle: $$W = \vm' [\Var(\vm)]\inv \vm,$$ which measures the sum squared deviation relative to variance.
+
+3. We also derive the $F$ statistic for unknown $\sigma$ in terms of residual sum of squares:
+\begin{equation}
+F = \frac{(RRSS - URSS)/\# \text{ restrictions}}{URSS/(n-k)}.
+\end{equation}
+Note that the $F$ statistic here can be considered as a result based on the Likelihood ratio principle. For known $\sigma$, we can write
+\begin{equation}
+F = \frac{(RRSS - URSS)}{\sigma^2}.
+\end{equation}
+
+# More on the Wald Principle
+
+To simplify notations, we will tell both the Wald principle and the Likelihood ratio principle based on the model space $\col(\mX)$, though every thing in the model space can be carried to the parameter space where $\vbeta$ lives. We will also assume known $\sigma$.
+
+Recall that the original GM model (with the normal assumption) assumes
+$$
+\vy \distr \mN(\mX \vbeta, \sigma^2 \mI),
+$$
+which gives the LS model vectors
+$$
+\hat{\vy} \distr \mN(\mX \vbeta, \sigma^2 \mI).
+$$
+
+Given a sample vector $\vy$, we can always perform the LS method and get a particular model vector $\hat{\vy}$ based on the sample. Hypothesis testing, in some sense, tries to assess whether the sample appears to favor or disfavor a particular model. This is done by partition the model space into a restricted model space and an unrestricted one. 
+
+In this sense, the $W$ statistic (with known $\sigma$) measures the squared distance between the unrestricted model vector $\hat{\vy}_U$ and the restricted model vector $\hat{\vy}_R$, standardized by the squared "average distance" between any two model vectors $\sigma^2$:
+$$\frac{\norm{\hat{\vy}_U - \hat{\vy}_R}^2}{\sigma^2}.$$
+Note that this is identical to 
+\begin{equation}
+\frac{\norm{\hat{\vy} - \hat{\vy}^0}^2}{\sigma^2},
+\end{equation}
+if we tie the restricted model vector to the null hypothesis.
+
+If the standardized squared distance (the $W$ value) is too large, we would consider the sample vector $\vy$ contains evidence against the restricted model (or the null hypothesis). (_Visualize it!_) Distribution theory helps us to quantify how large is too large. 
+
+We can Link the squared distance with the long expression:
+\begin{equation}
+\begin{split}
+ & \norm{\hat{\vy} - \hat{\vy}^0}^2 \\
+=& \norm{\hat{\vbeta} - \vbeta^0}^2_{\mX'\mX} \\
+=& (\hat{\vbeta} - \vbeta^0)' \mX'\mX (\hat{\vbeta} - \vbeta^0) \\
+=& (\hat{\vbeta} - \vbeta^0)' \mR'(\mR')\inv \mX'\mX \mR\inv \mR (\hat{\vbeta} - \vbeta^0) \\
+=& (\mR \hat{\vbeta} - \mR \vbeta^0)' [\mR (\mX'\mX)\inv \mR'] (\mR\hat{\vbeta} - \mR\vbeta^0) \\
+=& (\mR \hat{\vbeta} - \vq)' [\mR (\mX'\mX)\inv \mR'] (\mR\hat{\vbeta} - \vq), \\
+\end{split}
+\end{equation}
+which is the numerator of the $W$ statistic.
+
+# More on the Likelihood Ratio Principle
+
+While the Wald principle measures the distance between the null and the alternative (or the restricted and the unrestricted), the Likelihood ratio principle measures the distance between the likelihood of the null and the likelihood of the alternative. In the session we present the likelihood contour to visualize this distance. To complete that intuition, we derive the likelihood ratio test statistic here.
+
+Begin with the likelihood function of the model vector
+$$
+L(\hat{\vy}) = (2\pi\sigma^2)^{-n/2}exp[-\frac{\norm{\vy - \hat{\vy}}^2}{2\sigma^2}],
+$$
+its log-likelihood function is
+$$
+\ell(\hat{\vy}) = K - \frac{\norm{\vy - \hat{\vy}}^2}{2\sigma^2}.
+$$
+
+The likelihood ratio test statistic can be constructed in the following way:
+\begin{equation}
+\begin{split}
+2(L(\hat{\vy}) / L(\hat{\vy}^0)) &= 2[\ell(\vy) - \ell(\vy^0)] \\
+                              &= 2[K - \frac{\norm{\vy - \hat{\vy}}^2}{2\sigma^2} - K + \frac{\norm{\vy - \hat{\vy}^0}^2}{2\sigma^2}] \\
+                              &= \frac{\norm{\vy - \hat{\vy}^0}^2 - \norm{\vy - \hat{\vy}}^2}{\sigma^2}.
+\end{split}
+\end{equation}
+Note that this is identical to equation (4). Moreover, it equals the same distance measured by the $W$ statistic in equation (5). (_Visualize it!_)
